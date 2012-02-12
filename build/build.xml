@@ -858,6 +858,21 @@
             <maven-resource group="org.jboss.web" artifact="jasper-jdt"/>
             <maven-resource group="org.jboss.web" artifact="jbossweb"/>
             <extract-native-jar group="org.jboss.as" artifact="jbossweb-native"/>
+            <!-- MSS -->
+            <maven-resource group="org.mobicents.servlet.sip" artifact="sip-servlets-as7"/>
+            <maven-resource group="javax.sip" artifact="jain-sip-ri"/>
+            <maven-resource group="javax.sip" artifact="jain-sip-api"/>
+            <maven-resource group="org.mobicents.javax.sip" artifact="mobicents-jain-sip-ext"/>
+            <maven-resource group="dnsjava" artifact="dnsjava"/>
+            <maven-resource group="org.mobicents.servlet.sip" artifact="sip-servlets-core-api"/>
+            <maven-resource group="org.mobicents.servlet.sip" artifact="sip-servlets-client"/>
+            <maven-resource group="org.mobicents.servlet.sip" artifact="sip-servlets-annotations"/>
+            <maven-resource group="org.mobicents.ha.javax.sip" artifact="mobicents-jain-sip-ha-core"/>
+            <maven-resource group="org.mobicents.servlet.sip" artifact="sip-servlets-spec"/>
+            <maven-resource group="org.mobicents.servlet.sip" artifact="sip-servlets-impl"/>
+            <maven-resource group="org.mobicents.servlet.sip" artifact="sip-servlets-application-router"/>
+            <maven-resource group="javax.activation" artifact="activation"/>
+            <maven-resource group="javax.mail" artifact="mail"/>
         </module-def>
 
         <module-def name="org.jboss.as.webservices">

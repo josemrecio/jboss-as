@@ -51,6 +51,8 @@ import org.jboss.metadata.javaee.spec.SecurityRolesMetaData;
 import org.jboss.metadata.merge.javaee.spec.SecurityRolesMetaDataMerger;
 import org.jboss.metadata.merge.web.jboss.JBossWebMetaDataMerger;
 import org.jboss.metadata.merge.web.spec.WebCommonMetaDataMerger;
+import org.jboss.metadata.sip.jboss.JBossConvergedSipMetaData;
+import org.jboss.metadata.sip.spec.SipMetaData;
 import org.jboss.metadata.web.jboss.JBossWebMetaData;
 import org.jboss.metadata.web.spec.AbsoluteOrderingMetaData;
 import org.jboss.metadata.web.spec.OrderingElementMetaData;
@@ -317,10 +319,22 @@ public class WarMetaDataProcessor extends AbstractDeploymentProcessor {
 
         // Override with meta data (JBossWebMetaData)
         // Create a merged view
-        JBossWebMetaData mergedMetaData = new JBossWebMetaData();
+        //JBossWebMetaData mergedMetaData = new JBossWebMetaData();
+        JBossWebMetaData mergedMetaData = null;
+        if (warMetaData.getSipMetaData() == null) {
+            mergedMetaData = new JBossWebMetaData();
+        }
+        else {
+            mergedMetaData = new JBossConvergedSipMetaData();
+        }
         JBossWebMetaData metaData = warMetaData.getJbossWebMetaData();
         JBossWebMetaDataMerger.merge(mergedMetaData, metaData, specMetaData);
         // FIXME: Incorporate any ear level overrides
+        if (mergedMetaData instanceof JBossConvergedSipMetaData) {
+            SipMetaData sipMetaData = warMetaData.getSipMetaData();
+            ((JBossConvergedSipMetaData)mergedMetaData).merge(null, sipMetaData);
+            //SipMetaDataMerger.merge(mergedMetaData, metaData, specMetaData);
+        }
 
         warMetaData.setMergedJBossWebMetaData(mergedMetaData);
 

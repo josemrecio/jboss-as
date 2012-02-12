@@ -62,5 +62,7 @@
         <module name="org.jboss.common-core"/>
         <module name="org.picketbox"/>
         <module name="javax.security.jacc.api"/>
+        <!-- MSS -->
+        <module name="org.apache.log4j"/>
     </dependencies>
 </module>

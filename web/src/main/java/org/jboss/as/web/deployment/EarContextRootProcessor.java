@@ -35,7 +35,7 @@ import org.jboss.metadata.ear.spec.EarMetaData;
 import org.jboss.metadata.ear.spec.ModuleMetaData;
 import org.jboss.metadata.ear.spec.ModulesMetaData;
 import org.jboss.metadata.ear.spec.WebModuleMetaData;
-import org.jboss.metadata.web.jboss.JBoss70WebMetaData;
+import org.jboss.metadata.sip.jboss.JBoss70ConvergedSipMetaData;
 import org.jboss.metadata.web.jboss.JBossWebMetaData;
 
 /**
@@ -66,7 +66,8 @@ public class EarContextRootProcessor extends AbstractDeploymentProcessor {
                 if(contextRoot != null) {
                     JBossWebMetaData jBossWebMetaData = warMetaData.getJbossWebMetaData();
                         if(jBossWebMetaData == null) {
-                            jBossWebMetaData = new JBoss70WebMetaData();
+                            // jBossWebMetaData = new JBoss70WebMetaData();
+                            jBossWebMetaData = new JBoss70ConvergedSipMetaData(); // josemrecio
                             warMetaData.setJbossWebMetaData(jBossWebMetaData);
                         }
                     jBossWebMetaData.setContextRoot(contextRoot);

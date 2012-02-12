@@ -74,6 +74,7 @@ import org.jboss.metadata.javaee.spec.SecurityRoleRefMetaData;
 import org.jboss.metadata.javaee.spec.SecurityRoleRefsMetaData;
 import org.jboss.metadata.javaee.spec.SecurityRolesMetaData;
 import org.jboss.metadata.merge.web.jboss.JBossWebMetaDataMerger;
+import org.jboss.metadata.sip.jboss.JBossConvergedSipMetaData;
 import org.jboss.metadata.web.jboss.ContainerListenerMetaData;
 import org.jboss.metadata.web.jboss.JBossAnnotationsMetaData;
 import org.jboss.metadata.web.jboss.JBossServletMetaData;
@@ -118,6 +119,7 @@ import org.jboss.modules.ModuleIdentifier;
 import org.jboss.msc.inject.Injector;
 import org.jboss.msc.value.InjectedValue;
 import org.jboss.vfs.VirtualFile;
+import org.mobicents.servlet.sip.startup.SipStandardContext;
 
 /**
  * @author Remy Maucherat
@@ -171,7 +173,13 @@ public class JBossContextConfig extends ContextConfig {
 
     @Override
     protected void defaultWebConfig() {
-        JBossWebMetaData sharedJBossWebMetaData = new JBossWebMetaData();
+        // JBossWebMetaData sharedJBossWebMetaData = new JBossWebMetaData();
+        JBossWebMetaData sharedJBossWebMetaData = null;
+        if (context instanceof SipStandardContext) {
+            sharedJBossWebMetaData = new JBossConvergedSipMetaData();
+        } else {
+            sharedJBossWebMetaData = new JBossWebMetaData();
+        }
         final WarMetaData warMetaData = deploymentUnitContext.getAttachment(WarMetaData.ATTACHMENT_KEY);
         // FIXME: Default jboss-web.xml config
         JBossWebMetaDataMerger.merge(sharedJBossWebMetaData, null, warMetaData.getSharedWebMetaData());

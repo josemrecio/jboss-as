@@ -25,6 +25,7 @@ import org.apache.catalina.Host;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.core.StandardServer;
 import org.apache.catalina.core.StandardService;
+import org.mobicents.servlet.sip.startup.SipStandardService;
 
 /**
  * The web server.
@@ -70,5 +71,10 @@ public interface WebServer {
      * return the service (StandardService)
      */
     StandardService getService();
+
+    /**
+     * return the sipService (SipStandardService)
+     */
+    SipStandardService getSipService();
 
 }

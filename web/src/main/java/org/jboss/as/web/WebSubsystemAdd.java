@@ -40,6 +40,7 @@ import org.jboss.as.server.services.path.AbstractPathService;
 import org.jboss.as.web.deployment.EarContextRootProcessor;
 import org.jboss.as.web.deployment.JBossWebParsingDeploymentProcessor;
 import org.jboss.as.web.deployment.ServletContainerInitializerDeploymentProcessor;
+import org.jboss.as.web.deployment.SipParsingDeploymentProcessor;
 import org.jboss.as.web.deployment.TldParsingDeploymentProcessor;
 import org.jboss.as.web.deployment.WarAnnotationDeploymentProcessor;
 import org.jboss.as.web.deployment.WarClassloadingDependencyProcessor;
@@ -104,8 +105,10 @@ class WebSubsystemAdd extends AbstractBoottimeAddStepHandler implements Descript
                 final SharedTldsMetaDataBuilder sharedTldsBuilder = new SharedTldsMetaDataBuilder(config.clone());
 
                 processorTarget.addDeploymentProcessor(Phase.STRUCTURE, Phase.STRUCTURE_WAR_DEPLOYMENT_INIT, new WarDeploymentInitializingProcessor());
+                // TODO: add a sharedSipBuilder to setup sharedSipWebMetaData?
                 processorTarget.addDeploymentProcessor(Phase.STRUCTURE, Phase.STRUCTURE_WAR, new WarStructureDeploymentProcessor(sharedWebBuilder.create(), sharedTldsBuilder));
                 processorTarget.addDeploymentProcessor(Phase.PARSE, Phase.PARSE_WEB_DEPLOYMENT, new WebParsingDeploymentProcessor());
+                processorTarget.addDeploymentProcessor(Phase.PARSE, Phase.PARSE_SIP_DEPLOYMENT, new SipParsingDeploymentProcessor());
                 processorTarget.addDeploymentProcessor(Phase.PARSE, Phase.PARSE_WEB_DEPLOYMENT_FRAGMENT, new WebFragmentParsingDeploymentProcessor());
                 processorTarget.addDeploymentProcessor(Phase.PARSE, Phase.PARSE_JSF_VERSION, new JsfVersionProcessor());
                 processorTarget.addDeploymentProcessor(Phase.PARSE, Phase.PARSE_JBOSS_WEB_DEPLOYMENT, new JBossWebParsingDeploymentProcessor());

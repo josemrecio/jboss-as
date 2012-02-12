@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.jboss.as.server.deployment.AttachmentKey;
+import org.jboss.metadata.sip.spec.SipMetaData;
 import org.jboss.metadata.web.jboss.JBossWebMetaData;
 import org.jboss.metadata.web.spec.WebFragmentMetaData;
 import org.jboss.metadata.web.spec.WebMetaData;
@@ -47,6 +48,11 @@ public class WarMetaData {
      * Main web.xml metadata.
      */
     private volatile WebMetaData webMetaData;
+
+    /**
+     * Main sip.xml metadata.
+     */
+    private volatile SipMetaData sipMetaData;
 
     /**
      * Shared web.xml metadata.
@@ -166,6 +172,14 @@ public class WarMetaData {
 
     public void setMergedJBossWebMetaData(JBossWebMetaData mergedJBossWebMetaData) {
         this.mergedJBossWebMetaData = mergedJBossWebMetaData;
+    }
+
+    public SipMetaData getSipMetaData() {
+        return sipMetaData;
+    }
+
+    public void setSipMetaData(SipMetaData sipMetaData) {
+        this.sipMetaData = sipMetaData;
     }
 
 }

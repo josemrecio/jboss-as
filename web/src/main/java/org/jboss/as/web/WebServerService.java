@@ -32,6 +32,10 @@ import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
 import org.jboss.msc.value.InjectedValue;
+import org.mobicents.servlet.sip.core.SipApplicationDispatcherImpl;
+import org.mobicents.servlet.sip.startup.SipStandardEngine;
+import org.mobicents.servlet.sip.startup.SipStandardService;
+import org.mobicents.servlet.sip.startup.SipProtocolHandler;
 
 /**
  * Service configuring and starting the web container.
@@ -49,6 +53,9 @@ class WebServerService implements WebServer, Service<WebServer> {
     private Engine engine;
     private StandardServer server;
     private StandardService service;
+
+    private SipStandardEngine sipEngine;
+    private SipStandardService sipService;
 
     private final InjectedValue<MBeanServer> mbeanServer = new InjectedValue<MBeanServer>();
     private final InjectedValue<String> pathInjector = new InjectedValue<String>();
@@ -94,6 +101,23 @@ class WebServerService implements WebServer, Service<WebServer> {
         }
         server.addLifecycleListener(new JasperListener());
 
+        final SipStandardService sipService = new SipStandardService();
+        sipService.setSipApplicationDispatcherClassName(SipApplicationDispatcherImpl.class.getName());
+        sipService.setConcurrencyControlMode("None");
+        sipService.setCongestionControlCheckingInterval(-1);
+        sipService.setName(JBOSS_WEB);
+        sipService.setServer(server);
+        server.addService(sipService);
+
+        final SipStandardEngine sipEngine = new SipStandardEngine();
+        sipEngine.setName(JBOSS_WEB);
+        sipEngine.setService(sipService);
+        sipEngine.setDefaultHost(defaultHost);
+        if (instanceId != null) {
+            sipEngine.setJvmRoute(instanceId);
+        }
+        sipService.setContainer(sipEngine);
+
         try {
             server.init();
             server.start();
@@ -103,6 +127,8 @@ class WebServerService implements WebServer, Service<WebServer> {
         this.server = server;
         this.service = service;
         this.engine = engine;
+        this.sipService = sipService;
+        this.sipEngine = sipEngine;
     }
 
     /** {@inheritDoc} */
@@ -115,6 +141,8 @@ class WebServerService implements WebServer, Service<WebServer> {
         engine = null;
         service = null;
         server = null;
+        sipEngine = null;
+        sipService = null;
     }
 
     /** {@inheritDoc} */
@@ -124,8 +152,13 @@ class WebServerService implements WebServer, Service<WebServer> {
 
     /** {@inheritDoc} */
     public synchronized void addConnector(Connector connector) {
-        final StandardService service = this.service;
-        service.addConnector(connector);
+        if (connector.getProtocolHandler() instanceof SipProtocolHandler) {
+            final SipStandardService sipService = this.sipService;
+            sipService.addConnector(connector);
+        } else {
+            final StandardService service = this.service;
+            service.addConnector(connector);
+        }
     }
 
     /** {@inheritDoc} */
@@ -138,12 +171,16 @@ class WebServerService implements WebServer, Service<WebServer> {
     public synchronized void addHost(Host host) {
         final Engine engine = this.engine;
         engine.addChild(host);
+        final SipStandardEngine sipEngine = this.sipEngine;
+        sipEngine.addChild(host);
     }
 
     /** {@inheritDoc} */
     public synchronized void removeHost(Host host) {
         final Engine engine = this.engine;
         engine.removeChild(host);
+        final SipStandardEngine sipEngine = this.sipEngine;
+        sipEngine.removeChild(host);
     }
 
     InjectedValue<MBeanServer> getMbeanServer() {
@@ -160,6 +197,10 @@ class WebServerService implements WebServer, Service<WebServer> {
 
     public StandardService getService() {
         return service;
+    }
+
+    public SipStandardService getSipService() {
+        return sipService;
     }
 
 }

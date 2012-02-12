@@ -139,31 +139,47 @@ class WebConnectorAdd extends AbstractAddStepHandler implements DescriptionProvi
         final String bindingRef = operation.require(SOCKET_BINDING).asString();
 
         final boolean enabled = operation.hasDefined(ENABLED) ? operation.get(ENABLED).asBoolean() : true;
-        final WebConnectorService service = new WebConnectorService(operation.require(PROTOCOL).asString(), operation.get(SCHEME).asString());
-        if (operation.hasDefined(SECURE)) service.setSecure(operation.get(SECURE).asBoolean());
-        if (operation.hasDefined(ENABLE_LOOKUPS))
-            service.setEnableLookups(operation.get(ENABLE_LOOKUPS).asBoolean());
-        if (operation.hasDefined(PROXY_NAME)) service.setProxyName(operation.get(PROXY_NAME).asString());
-        if (operation.hasDefined(PROXY_PORT)) service.setProxyPort(operation.get(PROXY_PORT).asInt());
-        if (operation.hasDefined(REDIRECT_PORT))
-            service.setRedirectPort(operation.get(REDIRECT_PORT).asInt());
-        if (operation.hasDefined(MAX_POST_SIZE))
-            service.setMaxPostSize(operation.get(MAX_POST_SIZE).asInt());
-        if (operation.hasDefined(MAX_SAVE_POST_SIZE))
-            service.setMaxSavePostSize(operation.get(MAX_SAVE_POST_SIZE).asInt());
-        if (operation.hasDefined(MAX_CONNECTIONS))
-            service.setMaxConnections(operation.get(MAX_CONNECTIONS).asInt());
-        if (operation.hasDefined(VIRTUAL_SERVER))
-            service.setVirtualServers(operation.get(VIRTUAL_SERVER).clone());
-        if (operation.hasDefined(SSL)) {
-            service.setSsl(resolveExpressions(context,operation.get(SSL)));
+        ServiceBuilder<Connector> serviceBuilder = null;
+        if (operation.require(SCHEME).asString().equals("http")) {
+            final WebConnectorService service = new WebConnectorService(operation.require(PROTOCOL).asString(), operation.get(SCHEME).asString());
+            if (operation.hasDefined(SECURE)) service.setSecure(operation.get(SECURE).asBoolean());
+            if (operation.hasDefined(ENABLE_LOOKUPS))
+                service.setEnableLookups(operation.get(ENABLE_LOOKUPS).asBoolean());
+            if (operation.hasDefined(PROXY_NAME)) service.setProxyName(operation.get(PROXY_NAME).asString());
+            if (operation.hasDefined(PROXY_PORT)) service.setProxyPort(operation.get(PROXY_PORT).asInt());
+            if (operation.hasDefined(REDIRECT_PORT))
+                service.setRedirectPort(operation.get(REDIRECT_PORT).asInt());
+            if (operation.hasDefined(MAX_POST_SIZE))
+                service.setMaxPostSize(operation.get(MAX_POST_SIZE).asInt());
+            if (operation.hasDefined(MAX_SAVE_POST_SIZE))
+                service.setMaxSavePostSize(operation.get(MAX_SAVE_POST_SIZE).asInt());
+            if (operation.hasDefined(MAX_CONNECTIONS))
+                service.setMaxConnections(operation.get(MAX_CONNECTIONS).asInt());
+            if (operation.hasDefined(VIRTUAL_SERVER))
+                service.setVirtualServers(operation.get(VIRTUAL_SERVER).clone());
+            if (operation.hasDefined(SSL)) {
+                service.setSsl(resolveExpressions(context,operation.get(SSL)));
+            }
+            serviceBuilder = context.getServiceTarget().addService(WebSubsystemServices.JBOSS_WEB_CONNECTOR.append(name), service)
+                    .addDependency(WebSubsystemServices.JBOSS_WEB, WebServer.class, service.getServer())
+                    .addDependency(SocketBinding.JBOSS_BINDING_NAME.append(bindingRef), SocketBinding.class, service.getBinding());
+            if (operation.hasDefined(EXECUTOR)) {
+                String executorRef = operation.get(EXECUTOR).asString();
+                serviceBuilder.addDependency(ThreadsServices.executorName(executorRef), Executor.class, service.getExecutor());
+            }
         }
-        final ServiceBuilder<Connector> serviceBuilder = context.getServiceTarget().addService(WebSubsystemServices.JBOSS_WEB_CONNECTOR.append(name), service)
-                .addDependency(WebSubsystemServices.JBOSS_WEB, WebServer.class, service.getServer())
-                .addDependency(SocketBinding.JBOSS_BINDING_NAME.append(bindingRef), SocketBinding.class, service.getBinding());
-        if (operation.hasDefined(EXECUTOR)) {
-            String executorRef = operation.get(EXECUTOR).asString();
-            serviceBuilder.addDependency(ThreadsServices.executorName(executorRef), Executor.class, service.getExecutor());
+        else if (operation.require(SCHEME).asString().equals("sip")) {
+            final SipConnectorService service = new SipConnectorService(operation.require(PROTOCOL).asString(), operation.get(SCHEME).asString());
+            serviceBuilder = context.getServiceTarget().addService(WebSubsystemServices.JBOSS_WEB_CONNECTOR.append(name), service)
+                    .addDependency(WebSubsystemServices.JBOSS_WEB, WebServer.class, service.getServer())
+                    .addDependency(SocketBinding.JBOSS_BINDING_NAME.append(bindingRef), SocketBinding.class, service.getBinding());
+            if (operation.hasDefined(EXECUTOR)) {
+                String executorRef = operation.get(EXECUTOR).asString();
+                serviceBuilder.addDependency(ThreadsServices.executorName(executorRef), Executor.class, service.getExecutor());
+            }
+        }
+        else {
+            throw new OperationFailedException("Unknown scheme: " + operation.get(SCHEME).asString());
         }
         serviceBuilder.setInitialMode(enabled ? Mode.ACTIVE : Mode.NEVER);
         if (enabled) {

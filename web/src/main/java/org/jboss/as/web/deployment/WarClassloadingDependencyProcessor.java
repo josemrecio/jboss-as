@@ -73,16 +73,16 @@ public class WarClassloadingDependencyProcessor extends AbstractDeploymentProces
         addJSFAPI(jsfVersion, moduleSpecification, moduleLoader);
 
         // Add module dependencies on Java EE apis
-        moduleSpecification.addSystemDependency(new ModuleDependency(moduleLoader, JAVAX_EE_API, false, false, false));
+        moduleSpecification.addSystemDependency(new ModuleDependency(moduleLoader, JAVAX_EE_API, false, false, false, false));
 
         addJSFImpl(jsfVersion, moduleSpecification, moduleLoader);
 
-        moduleSpecification.addSystemDependency(new ModuleDependency(moduleLoader, JSTL, false, false, false));
-        moduleSpecification.addSystemDependency(new ModuleDependency(moduleLoader, BEAN_VALIDATION, false, false, true));
+        moduleSpecification.addSystemDependency(new ModuleDependency(moduleLoader, JSTL, false, false, false, false));
+        moduleSpecification.addSystemDependency(new ModuleDependency(moduleLoader, BEAN_VALIDATION, false, false, true, false));
 
         // FIXME we need to revise the exports of the web module, so that we
         // don't export our internals
-        moduleSpecification.addSystemDependency(new ModuleDependency(moduleLoader, JBOSS_WEB, false, false, true));
+        moduleSpecification.addSystemDependency(new ModuleDependency(moduleLoader, JBOSS_WEB, false, false, true, false));
 
     }
 
@@ -91,7 +91,7 @@ public class WarClassloadingDependencyProcessor extends AbstractDeploymentProces
 
         ModuleIdentifier jsfModule = JSF_API;
         if (jsfVersion.equals(JsfVersionMarker.JSF_1_2)) jsfModule = JSF_1_2_API;
-        moduleSpecification.addSystemDependency(new ModuleDependency(moduleLoader, jsfModule, false, false, false));
+        moduleSpecification.addSystemDependency(new ModuleDependency(moduleLoader, jsfModule, false, false, false, false));
     }
 
     protected void addJSFImpl(String jsfVersion, ModuleSpecification moduleSpecification, ModuleLoader moduleLoader) {
@@ -105,7 +105,7 @@ public class WarClassloadingDependencyProcessor extends AbstractDeploymentProces
             logger.warn("Unkown JSF version " + jsfVersion + " " + JsfVersionMarker.JSF_2_0 + " will be used instead");
         }
 
-        ModuleDependency jsf = new ModuleDependency(moduleLoader, jsfModule, false, false, false);
+        ModuleDependency jsf = new ModuleDependency(moduleLoader, jsfModule, false, false, false, false);
         jsf.addImportFilter(PathFilters.getMetaInfFilter(), true);
         moduleSpecification.addSystemDependency(jsf);
     }

@@ -214,6 +214,7 @@ public enum Phase {
     public static final int PARSE_OSGI_XSERVICE_PROPERTIES              = 0x0A00;
     public static final int PARSE_OSGI_DEPLOYMENT                       = 0x0A80;
     public static final int PARSE_WEB_DEPLOYMENT                        = 0x0B00;
+    public static final int PARSE_SIP_DEPLOYMENT                        = 0x0B01;
     public static final int PARSE_WEB_DEPLOYMENT_FRAGMENT               = 0x0C00;
     public static final int PARSE_JSF_VERSION                           = 0x0C50;
     public static final int PARSE_ANNOTATION_WAR                        = 0x0D00;
