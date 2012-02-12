@@ -41,7 +41,6 @@ import org.jboss.as.server.deployment.Attachments;
 import org.jboss.as.server.deployment.DeploymentPhaseContext;
 import org.jboss.as.server.deployment.DeploymentUnit;
 import org.jboss.as.server.deployment.DeploymentUnitProcessingException;
-import org.jboss.as.server.deployment.DeploymentUnitProcessor;
 import org.jboss.as.server.deployment.annotation.CompositeIndex;
 import org.jboss.as.server.deployment.module.ModuleDependency;
 import org.jboss.as.server.deployment.module.ModuleSpecification;
@@ -64,18 +63,16 @@ import org.jboss.vfs.VirtualFile;
  * @author Emanuel Muckenhuber
  * @author Remy Maucherat
  */
-public class ServletContainerInitializerDeploymentProcessor implements DeploymentUnitProcessor {
+public class ServletContainerInitializerDeploymentProcessor extends AbstractDeploymentProcessor {
 
     /**
      * Process SCIs.
      */
-    public void deploy(final DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
+    @Override
+    protected void doDeploy(DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
         final DeploymentUnit deploymentUnit = phaseContext.getDeploymentUnit();
         final ModuleSpecification moduleSpecification = deploymentUnit.getAttachment(Attachments.MODULE_SPECIFICATION);
         final ServiceModuleLoader loader = deploymentUnit.getAttachment(Attachments.SERVICE_MODULE_LOADER);
-        if (!DeploymentTypeMarker.isType(DeploymentType.WAR, deploymentUnit)) {
-            return; // Skip non web deployments
-        }
         WarMetaData warMetaData = deploymentUnit.getAttachment(WarMetaData.ATTACHMENT_KEY);
         assert warMetaData != null;
         final Module module = deploymentUnit.getAttachment(Attachments.MODULE);
@@ -163,10 +160,7 @@ public class ServletContainerInitializerDeploymentProcessor implements Deploymen
         }
     }
 
-    public void undeploy(final DeploymentUnit context) {
-    }
-
-    private ServletContainerInitializer loadSci(ClassLoader classLoader, VirtualFile sci, String jar, boolean error) throws DeploymentUnitProcessingException {
+    protected ServletContainerInitializer loadSci(ClassLoader classLoader, VirtualFile sci, String jar, boolean error) throws DeploymentUnitProcessingException {
         ServletContainerInitializer service = null;
         InputStream is = null;
         try {
@@ -198,7 +192,7 @@ public class ServletContainerInitializerDeploymentProcessor implements Deploymen
         return service;
     }
 
-    private Set<ClassInfo> processHandlesType(DotName typeName, Class<?> type, CompositeIndex index) throws DeploymentUnitProcessingException {
+    protected Set<ClassInfo> processHandlesType(DotName typeName, Class<?> type, CompositeIndex index) throws DeploymentUnitProcessingException {
         Set<ClassInfo> classes = new HashSet<ClassInfo>();
         if (type.isAnnotation()) {
             List<AnnotationInstance> instances = index.getAnnotations(typeName);
@@ -220,7 +214,7 @@ public class ServletContainerInitializerDeploymentProcessor implements Deploymen
         return classes;
     }
 
-    private Set<Class<?>> loadClassInfoSet(Set<ClassInfo> classInfos, ClassLoader classLoader) throws DeploymentUnitProcessingException {
+    protected Set<Class<?>> loadClassInfoSet(Set<ClassInfo> classInfos, ClassLoader classLoader) throws DeploymentUnitProcessingException {
         Set<Class<?>> classes = new HashSet<Class<?>>();
         for (ClassInfo classInfo : classInfos) {
             Class<?> type = null;
@@ -232,5 +226,10 @@ public class ServletContainerInitializerDeploymentProcessor implements Deploymen
             }
         }
         return classes;
+    }
+
+    @Override
+    protected boolean canHandle(DeploymentUnit deploymentUnit) {
+        return DeploymentTypeMarker.isType(DeploymentType.WAR, deploymentUnit);
     }
 }

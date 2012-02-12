@@ -21,8 +21,6 @@
  */
 package org.jboss.as.web.deployment;
 
-import static org.jboss.as.web.WebMessages.MESSAGES;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -39,7 +37,6 @@ import org.jboss.as.server.deployment.Attachments;
 import org.jboss.as.server.deployment.DeploymentPhaseContext;
 import org.jboss.as.server.deployment.DeploymentUnit;
 import org.jboss.as.server.deployment.DeploymentUnitProcessingException;
-import org.jboss.as.server.deployment.DeploymentUnitProcessor;
 import org.jboss.as.server.deployment.module.ResourceRoot;
 import org.jboss.metadata.parser.jsp.TldMetaDataParser;
 import org.jboss.metadata.parser.util.NoopXMLResolver;
@@ -49,21 +46,18 @@ import org.jboss.vfs.VirtualFile;
 /**
  * @author Remy Maucherat
  */
-public class TldParsingDeploymentProcessor implements DeploymentUnitProcessor {
+public class TldParsingDeploymentProcessor extends AbstractDeploymentProcessor {
 
-    private static final String TLD = ".tld";
-    private static final String META_INF = "META-INF";
-    private static final String WEB_INF = "WEB-INF";
-    private static final String CLASSES = "classes";
-    private static final String LIB = "lib";
-    private static final String IMPLICIT_TLD = "implicit.tld";
+    protected static final String TLD = ".tld";
+    protected static final String META_INF = "META-INF";
+    protected static final String WEB_INF = "WEB-INF";
+    protected static final String CLASSES = "classes";
+    protected static final String LIB = "lib";
+    protected static final String IMPLICIT_TLD = "implicit.tld";
 
     @Override
-    public void deploy(DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
+    protected void doDeploy(DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
         final DeploymentUnit deploymentUnit = phaseContext.getDeploymentUnit();
-        if (!DeploymentTypeMarker.isType(DeploymentType.WAR, deploymentUnit)) {
-            return; // Skip non web deployments
-        }
         final VirtualFile deploymentRoot = deploymentUnit.getAttachment(Attachments.DEPLOYMENT_ROOT).getRoot();
         TldsMetaData tldsMetaData = deploymentUnit.getAttachment(TldsMetaData.ATTACHMENT_KEY);
         if (tldsMetaData == null) {
@@ -96,12 +90,8 @@ public class TldParsingDeploymentProcessor implements DeploymentUnitProcessor {
         }
     }
 
-    @Override
-    public void undeploy(final DeploymentUnit context) {
-    }
-
-    private void processTlds(VirtualFile root, List<VirtualFile> files, Map<String, TldMetaData> tlds)
-    throws DeploymentUnitProcessingException {
+    protected void processTlds(VirtualFile root, List<VirtualFile> files, Map<String, TldMetaData> tlds)
+            throws DeploymentUnitProcessingException {
         for (VirtualFile file : files) {
             if (file.isFile() && file.getLowerCaseName().endsWith(TLD)) {
                 tlds.put("/" + file.getPathNameRelativeTo(root), parseTLD(file));
@@ -111,8 +101,7 @@ public class TldParsingDeploymentProcessor implements DeploymentUnitProcessor {
         }
     }
 
-    private TldMetaData parseTLD(VirtualFile tld)
-    throws DeploymentUnitProcessingException {
+    protected TldMetaData parseTLD(VirtualFile tld) throws DeploymentUnitProcessingException {
         if (IMPLICIT_TLD.equals(tld.getName())) {
             // Implicit TLDs are different from regular TLDs
             return new TldMetaData();
@@ -125,9 +114,10 @@ public class TldParsingDeploymentProcessor implements DeploymentUnitProcessor {
             XMLStreamReader xmlReader = inputFactory.createXMLStreamReader(is);
             return TldMetaDataParser.parse(xmlReader);
         } catch (XMLStreamException e) {
-            throw new DeploymentUnitProcessingException(MESSAGES.failToParseXMLDescriptor(tld, e.getLocation().getLineNumber(), e.getLocation().getColumnNumber()));
+            throw new DeploymentUnitProcessingException("Failed to parse " + tld + " at [" + e.getLocation().getLineNumber()
+                    + "," + e.getLocation().getColumnNumber() + "]");
         } catch (IOException e) {
-            throw new DeploymentUnitProcessingException(MESSAGES.failToParseXMLDescriptor(tld), e);
+            throw new DeploymentUnitProcessingException("Failed to parse " + tld, e);
         } finally {
             try {
                 if (is != null) {
@@ -139,4 +129,8 @@ public class TldParsingDeploymentProcessor implements DeploymentUnitProcessor {
         }
     }
 
+    @Override
+    protected boolean canHandle(DeploymentUnit deploymentUnit) {
+        return DeploymentTypeMarker.isType(DeploymentType.WAR, deploymentUnit);
+    }
 }

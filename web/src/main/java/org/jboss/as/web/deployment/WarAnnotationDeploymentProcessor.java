@@ -45,7 +45,6 @@ import org.jboss.as.ee.structure.DeploymentTypeMarker;
 import org.jboss.as.server.deployment.DeploymentPhaseContext;
 import org.jboss.as.server.deployment.DeploymentUnit;
 import org.jboss.as.server.deployment.DeploymentUnitProcessingException;
-import org.jboss.as.server.deployment.DeploymentUnitProcessor;
 import org.jboss.as.server.deployment.annotation.AnnotationIndexUtils;
 import org.jboss.as.server.deployment.module.ResourceRoot;
 import org.jboss.jandex.AnnotationInstance;
@@ -89,25 +88,22 @@ import org.jboss.metadata.web.spec.WebMetaData;
  * @author Emanuel Muckenhuber
  * @author Remy Maucherat
  */
-public class WarAnnotationDeploymentProcessor implements DeploymentUnitProcessor {
+public class WarAnnotationDeploymentProcessor extends AbstractDeploymentProcessor {
 
-    private static final DotName webFilter = DotName.createSimple(WebFilter.class.getName());
-    private static final DotName webListener = DotName.createSimple(WebListener.class.getName());
-    private static final DotName webServlet = DotName.createSimple(WebServlet.class.getName());
-    private static final DotName runAs = DotName.createSimple(RunAs.class.getName());
-    private static final DotName declareRoles = DotName.createSimple(DeclareRoles.class.getName());
-    private static final DotName multipartConfig = DotName.createSimple(MultipartConfig.class.getName());
-    private static final DotName servletSecurity = DotName.createSimple(ServletSecurity.class.getName());
+    protected static final DotName webFilter = DotName.createSimple(WebFilter.class.getName());
+    protected static final DotName webListener = DotName.createSimple(WebListener.class.getName());
+    protected static final DotName webServlet = DotName.createSimple(WebServlet.class.getName());
+    protected static final DotName runAs = DotName.createSimple(RunAs.class.getName());
+    protected static final DotName declareRoles = DotName.createSimple(DeclareRoles.class.getName());
+    protected static final DotName multipartConfig = DotName.createSimple(MultipartConfig.class.getName());
+    protected static final DotName servletSecurity = DotName.createSimple(ServletSecurity.class.getName());
 
     /**
      * Process web annotations.
      */
-    public void deploy(final DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
+    @Override
+    protected void doDeploy(final DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
         final DeploymentUnit deploymentUnit = phaseContext.getDeploymentUnit();
-        if (!DeploymentTypeMarker.isType(DeploymentType.WAR, deploymentUnit)) {
-            return; // Skip non web deployments
-        }
-
         WarMetaData warMetaData = deploymentUnit.getAttachment(WarMetaData.ATTACHMENT_KEY);
         assert warMetaData != null;
         Map<String, WebMetaData> annotationsMetaData = warMetaData.getAnnotationsMetaData();
@@ -122,9 +118,6 @@ public class WarAnnotationDeploymentProcessor implements DeploymentUnitProcessor
             final Index jarIndex = entry.getValue();
             annotationsMetaData.put(entry.getKey().getRootName(), processAnnotations(jarIndex));
         }
-    }
-
-    public void undeploy(final DeploymentUnit context) {
     }
 
     /**
@@ -584,4 +577,8 @@ public class WarAnnotationDeploymentProcessor implements DeploymentUnitProcessor
         return dg;
     }
 
+    @Override
+    protected boolean canHandle(DeploymentUnit deploymentUnit) {
+        return DeploymentTypeMarker.isType(DeploymentType.WAR, deploymentUnit);
+    }
 }

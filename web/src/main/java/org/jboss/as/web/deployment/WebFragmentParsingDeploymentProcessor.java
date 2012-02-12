@@ -39,7 +39,6 @@ import org.jboss.as.server.deployment.Attachments;
 import org.jboss.as.server.deployment.DeploymentPhaseContext;
 import org.jboss.as.server.deployment.DeploymentUnit;
 import org.jboss.as.server.deployment.DeploymentUnitProcessingException;
-import org.jboss.as.server.deployment.DeploymentUnitProcessor;
 import org.jboss.as.server.deployment.module.ResourceRoot;
 import org.jboss.metadata.parser.servlet.WebFragmentMetaDataParser;
 import org.jboss.metadata.parser.util.NoopXMLResolver;
@@ -49,16 +48,13 @@ import org.jboss.vfs.VirtualFile;
 /**
  * @author Remy Maucherat
  */
-public class WebFragmentParsingDeploymentProcessor implements DeploymentUnitProcessor {
+public class WebFragmentParsingDeploymentProcessor extends AbstractDeploymentProcessor {
 
-    private static final String WEB_FRAGMENT_XML = "META-INF/web-fragment.xml";
+    protected static final String WEB_FRAGMENT_XML = "META-INF/web-fragment.xml";
 
     @Override
-    public void deploy(DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
+    protected void doDeploy(DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
         final DeploymentUnit deploymentUnit = phaseContext.getDeploymentUnit();
-        if (!DeploymentTypeMarker.isType(DeploymentType.WAR, deploymentUnit)) {
-            return; // Skip non web deployments
-        }
         WarMetaData warMetaData = deploymentUnit.getAttachment(WarMetaData.ATTACHMENT_KEY);
         assert warMetaData != null;
         Map<String, WebFragmentMetaData> webFragments = warMetaData.getWebFragmentsMetaData();
@@ -100,6 +96,7 @@ public class WebFragmentParsingDeploymentProcessor implements DeploymentUnitProc
     }
 
     @Override
-    public void undeploy(final DeploymentUnit context) {
+    protected boolean canHandle(DeploymentUnit deploymentUnit) {
+        return DeploymentTypeMarker.isType(DeploymentType.WAR, deploymentUnit);
     }
 }

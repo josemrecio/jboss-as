@@ -22,17 +22,17 @@
 
 package org.jboss.as.web.deployment;
 
+import static org.jboss.metadata.ear.spec.ModuleMetaData.ModuleType.Web;
+
 import org.jboss.as.ee.structure.Attachments;
 import org.jboss.as.ee.structure.DeploymentType;
 import org.jboss.as.ee.structure.DeploymentTypeMarker;
 import org.jboss.as.server.deployment.DeploymentPhaseContext;
 import org.jboss.as.server.deployment.DeploymentUnit;
 import org.jboss.as.server.deployment.DeploymentUnitProcessingException;
-import org.jboss.as.server.deployment.DeploymentUnitProcessor;
 import org.jboss.as.server.deployment.module.ResourceRoot;
 import org.jboss.metadata.ear.spec.EarMetaData;
 import org.jboss.metadata.ear.spec.ModuleMetaData;
-import static org.jboss.metadata.ear.spec.ModuleMetaData.ModuleType.Web;
 import org.jboss.metadata.ear.spec.ModulesMetaData;
 import org.jboss.metadata.ear.spec.WebModuleMetaData;
 import org.jboss.metadata.web.jboss.JBoss70WebMetaData;
@@ -44,29 +44,15 @@ import org.jboss.metadata.web.jboss.JBossWebMetaData;
  *
  * @author John Bailey
  */
-public class EarContextRootProcessor implements DeploymentUnitProcessor {
+public class EarContextRootProcessor extends AbstractDeploymentProcessor {
 
-    public void deploy(final DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
+    @Override
+    protected void doDeploy(DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
         final DeploymentUnit deploymentUnit = phaseContext.getDeploymentUnit();
         final WarMetaData warMetaData = deploymentUnit.getAttachment(WarMetaData.ATTACHMENT_KEY);
-        if(warMetaData == null) {
-            return; // Nothing we can do without WarMetaData
-        }
         final ResourceRoot deploymentRoot = deploymentUnit.getAttachment(org.jboss.as.server.deployment.Attachments.DEPLOYMENT_ROOT);
-        if(deploymentRoot == null) {
-            return; // We don't have a root to work with
-        }
-
         final DeploymentUnit parent = deploymentUnit.getParent();
-        if(parent == null || !DeploymentTypeMarker.isType(DeploymentType.EAR, parent)) {
-            return;  // Only care if this war is nested in an EAR
-        }
-
         final EarMetaData earMetaData = parent.getAttachment(Attachments.EAR_METADATA);
-        if(earMetaData == null) {
-            return; // Nothing to see here
-        }
-
         final ModulesMetaData modulesMetaData = earMetaData.getModules();
         if(modulesMetaData != null) for(ModuleMetaData moduleMetaData : modulesMetaData) {
             if(Web.equals(moduleMetaData.getType()) && moduleMetaData.getFileName().equals(deploymentRoot.getRootName())) {
@@ -90,6 +76,31 @@ public class EarContextRootProcessor implements DeploymentUnitProcessor {
         }
     }
 
-    public void undeploy(final DeploymentUnit context) {
+    @Override
+    protected boolean canHandle(DeploymentUnit deploymentUnit) {
+        if (!DeploymentTypeMarker.isType(DeploymentType.WAR, deploymentUnit)) {
+            return false;
+        }
+
+        final WarMetaData warMetaData = deploymentUnit.getAttachment(WarMetaData.ATTACHMENT_KEY);
+        if(warMetaData == null) {
+            return false; // Nothing we can do without WarMetaData
+        }
+        final ResourceRoot deploymentRoot = deploymentUnit.getAttachment(org.jboss.as.server.deployment.Attachments.DEPLOYMENT_ROOT);
+        if(deploymentRoot == null) {
+            return false; // We don't have a root to work with
+        }
+
+        final DeploymentUnit parent = deploymentUnit.getParent();
+        if(parent == null || !DeploymentTypeMarker.isType(DeploymentType.EAR, parent)) {
+            return false;  // Only care if this war is nested in an EAR
+        }
+
+        final EarMetaData earMetaData = parent.getAttachment(Attachments.EAR_METADATA);
+        if(earMetaData == null) {
+            return false; // Nothing to see here
+        }
+
+        return true;
     }
 }

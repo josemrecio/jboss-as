@@ -36,25 +36,20 @@ import org.jboss.as.server.deployment.Attachments;
 import org.jboss.as.server.deployment.DeploymentPhaseContext;
 import org.jboss.as.server.deployment.DeploymentUnit;
 import org.jboss.as.server.deployment.DeploymentUnitProcessingException;
-import org.jboss.as.server.deployment.DeploymentUnitProcessor;
 import org.jboss.metadata.parser.jbossweb.JBossWebMetaDataParser;
 import org.jboss.metadata.parser.util.NoopXMLResolver;
-import org.jboss.metadata.web.jboss.JBossWebMetaData;
 import org.jboss.vfs.VirtualFile;
 
 /**
  * @author Jean-Frederic Clere
  */
-public class JBossWebParsingDeploymentProcessor implements DeploymentUnitProcessor {
+public class JBossWebParsingDeploymentProcessor extends AbstractDeploymentProcessor {
 
-    private static final String JBOSS_WEB_XML = "WEB-INF/jboss-web.xml";
+    protected static final String JBOSS_WEB_XML = "WEB-INF/jboss-web.xml";
 
     @Override
-    public void deploy(DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
+    protected void doDeploy(DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
         final DeploymentUnit deploymentUnit = phaseContext.getDeploymentUnit();
-        if (!DeploymentTypeMarker.isType(DeploymentType.WAR, deploymentUnit)) {
-            return; // Skip non web deployments
-        }
         final VirtualFile deploymentRoot = deploymentUnit.getAttachment(Attachments.DEPLOYMENT_ROOT).getRoot();
         final VirtualFile jbossWebXml = deploymentRoot.getChild(JBOSS_WEB_XML);
         WarMetaData warMetaData = deploymentUnit.getAttachment(WarMetaData.ATTACHMENT_KEY);
@@ -66,13 +61,7 @@ public class JBossWebParsingDeploymentProcessor implements DeploymentUnitProcess
                 final XMLInputFactory inputFactory = XMLInputFactory.newInstance();
                 inputFactory.setXMLResolver(NoopXMLResolver.create());
                 XMLStreamReader xmlReader = inputFactory.createXMLStreamReader(is);
-                final JBossWebMetaData jBossWebMetaData = JBossWebMetaDataParser.parse(xmlReader);
-                warMetaData.setJbossWebMetaData(jBossWebMetaData);
-                // if the jboss-web.xml has a distinct-name configured, then attach the value to this
-                // deployment unit
-                if (jBossWebMetaData.getDistinctName() != null) {
-                    deploymentUnit.putAttachment(org.jboss.as.ee.structure.Attachments.DISTINCT_NAME, jBossWebMetaData.getDistinctName());
-                }
+                warMetaData.setJbossWebMetaData(JBossWebMetaDataParser.parse(xmlReader));
             } catch (XMLStreamException e) {
                 throw new DeploymentUnitProcessingException(MESSAGES.failToParseXMLDescriptor(jbossWebXml, e.getLocation().getLineNumber(), e.getLocation().getColumnNumber()), e);
             } catch (IOException e) {
@@ -90,6 +79,7 @@ public class JBossWebParsingDeploymentProcessor implements DeploymentUnitProcess
     }
 
     @Override
-    public void undeploy(DeploymentUnit context) {
+    protected boolean canHandle(DeploymentUnit deploymentUnit) {
+        return DeploymentTypeMarker.isType(DeploymentType.WAR, deploymentUnit);
     }
 }

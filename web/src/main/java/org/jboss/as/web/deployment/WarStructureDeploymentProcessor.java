@@ -22,7 +22,10 @@
 
 package org.jboss.as.web.deployment;
 
-import static org.jboss.as.web.WebMessages.MESSAGES;
+import java.io.Closeable;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.jboss.as.ee.structure.DeploymentType;
 import org.jboss.as.ee.structure.DeploymentTypeMarker;
@@ -30,7 +33,6 @@ import org.jboss.as.server.deployment.Attachments;
 import org.jboss.as.server.deployment.DeploymentPhaseContext;
 import org.jboss.as.server.deployment.DeploymentUnit;
 import org.jboss.as.server.deployment.DeploymentUnitProcessingException;
-import org.jboss.as.server.deployment.DeploymentUnitProcessor;
 import org.jboss.as.server.deployment.PrivateSubDeploymentMarker;
 import org.jboss.as.server.deployment.module.ModuleRootMarker;
 import org.jboss.as.server.deployment.module.ModuleSpecification;
@@ -46,44 +48,34 @@ import org.jboss.vfs.VirtualFileFilter;
 import org.jboss.vfs.VisitorAttributes;
 import org.jboss.vfs.util.SuffixMatchFilter;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Create and mount classpath entries in the .war deployment.
  *
  * @author Emanuel Muckenhuber
  */
-public class WarStructureDeploymentProcessor implements DeploymentUnitProcessor {
+public class WarStructureDeploymentProcessor extends AbstractDeploymentProcessor {
 
     private static final Logger logger = Logger.getLogger(WarStructureDeploymentProcessor.class);
 
     public static final String WEB_INF_LIB = "WEB-INF/lib";
     public static final String WEB_INF_CLASSES = "WEB-INF/classes";
 
-    private static final ResourceRoot[] NO_ROOTS = new ResourceRoot[0];
+    protected static final ResourceRoot[] NO_ROOTS = new ResourceRoot[0];
 
     public static final VirtualFileFilter DEFAULT_WEB_INF_LIB_FILTER = new SuffixMatchFilter(".jar", VisitorAttributes.DEFAULT);
 
     private final WebMetaData sharedWebMetaData;
     private final SharedTldsMetaDataBuilder sharedTldsMetaData;
 
-    public WarStructureDeploymentProcessor(final WebMetaData sharedWebMetaData, final SharedTldsMetaDataBuilder sharedTldsMetaData) {
+    public WarStructureDeploymentProcessor(final WebMetaData sharedWebMetaData,
+            final SharedTldsMetaDataBuilder sharedTldsMetaData) {
         this.sharedWebMetaData = sharedWebMetaData;
         this.sharedTldsMetaData = sharedTldsMetaData;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void deploy(DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
+    @Override
+    protected void doDeploy(DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
         final DeploymentUnit deploymentUnit = phaseContext.getDeploymentUnit();
-        if (!DeploymentTypeMarker.isType(DeploymentType.WAR, deploymentUnit)) {
-            return; // Skip non web deployments
-        }
-
         final ResourceRoot deploymentResourceRoot = deploymentUnit.getAttachment(Attachments.DEPLOYMENT_ROOT);
 
         final VirtualFile deploymentRoot = deploymentResourceRoot.getRoot();
@@ -129,24 +121,20 @@ public class WarStructureDeploymentProcessor implements DeploymentUnitProcessor 
         deploymentUnit.putAttachment(TldsMetaData.ATTACHMENT_KEY, tldsMetaData);
     }
 
-    public void undeploy(final DeploymentUnit context) {
-    }
-
     /**
      * Create the resource roots for a .war deployment
      *
      * @param deploymentRoot the deployment root
-     * @param mountHandle    the root mount handle
+     * @param mountHandle the root mount handle
      * @return the resource roots
      * @throws IOException for any error
      */
-    private List<ResourceRoot> createResourceRoots(final VirtualFile deploymentRoot, MountHandle mountHandle)
-            throws IOException,
-            DeploymentUnitProcessingException {
+    protected List<ResourceRoot> createResourceRoots(final VirtualFile deploymentRoot, MountHandle mountHandle)
+            throws IOException, DeploymentUnitProcessingException {
         final List<ResourceRoot> entries = new ArrayList<ResourceRoot>();
         // WEB-INF classes
-        final ResourceRoot webInfClassesRoot = new ResourceRoot(deploymentRoot.getChild(WEB_INF_CLASSES).getName(), deploymentRoot
-                .getChild(WEB_INF_CLASSES), null);
+        final ResourceRoot webInfClassesRoot = new ResourceRoot(deploymentRoot.getChild(WEB_INF_CLASSES).getName(),
+                deploymentRoot.getChild(WEB_INF_CLASSES), null);
         ModuleRootMarker.mark(webInfClassesRoot);
         entries.add(webInfClassesRoot);
         // WEB-INF lib
@@ -168,13 +156,19 @@ public class WarStructureDeploymentProcessor implements DeploymentUnitProcessor 
             for (final VirtualFile archive : archives) {
                 try {
                     final Closeable closable = VFS.mountZip(archive, archive, TempFileProviderService.provider());
-                    final ResourceRoot webInfArchiveRoot = new ResourceRoot(archive.getName(), archive, new MountHandle(closable));
+                    final ResourceRoot webInfArchiveRoot = new ResourceRoot(archive.getName(), archive, new MountHandle(
+                            closable));
                     ModuleRootMarker.mark(webInfArchiveRoot);
                     entries.add(webInfArchiveRoot);
                 } catch (IOException e) {
-                    throw new DeploymentUnitProcessingException(MESSAGES.failToProcessWebInfLib(archive), e);
+                    throw new DeploymentUnitProcessingException("failed to process " + archive, e);
                 }
             }
         }
+    }
+
+    @Override
+    protected boolean canHandle(DeploymentUnit deploymentUnit) {
+        return DeploymentTypeMarker.isType(DeploymentType.WAR, deploymentUnit);
     }
 }

@@ -22,7 +22,12 @@
 
 package org.jboss.as.web.deployment.component;
 
-import static org.jboss.as.web.WebMessages.MESSAGES;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.AsyncListener;
 
 import org.jboss.as.ee.component.Attachments;
 import org.jboss.as.ee.component.ComponentDescription;
@@ -33,8 +38,8 @@ import org.jboss.as.ee.structure.DeploymentTypeMarker;
 import org.jboss.as.server.deployment.DeploymentPhaseContext;
 import org.jboss.as.server.deployment.DeploymentUnit;
 import org.jboss.as.server.deployment.DeploymentUnitProcessingException;
-import org.jboss.as.server.deployment.DeploymentUnitProcessor;
 import org.jboss.as.server.deployment.annotation.CompositeIndex;
+import org.jboss.as.web.deployment.AbstractDeploymentProcessor;
 import org.jboss.as.web.deployment.TldsMetaData;
 import org.jboss.as.web.deployment.WarMetaData;
 import org.jboss.as.web.deployment.WebAttachments;
@@ -48,13 +53,6 @@ import org.jboss.metadata.web.spec.TldMetaData;
 import org.jboss.metadata.web.spec.WebCommonMetaData;
 import org.jboss.metadata.web.spec.WebFragmentMetaData;
 import org.jboss.metadata.web.spec.WebMetaData;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.AsyncListener;
 
 /**
  * Processor that figures out what type of component a servlet/listener is, and registers the appropriate metadata.
@@ -71,35 +69,27 @@ import javax.servlet.AsyncListener;
  * <p/>
  * For now we are just using managed bean components as servlets. We may need a custom component type in future.
  */
-public class WebComponentProcessor implements DeploymentUnitProcessor {
+public class WebComponentProcessor extends AbstractDeploymentProcessor {
 
     /**
      * Tags in these packages do not need to be computerized
      */
-    private static final String[] BUILTIN_TAGLIBS = {"org.apache.taglibs.standard", "com.sun.faces.taglib.jsf_core",  "com.sun.faces.ext.taglib", "com.sun.faces.taglib.html_basic",};
+    protected static final String[] BUILTIN_TAGLIBS = {"org.apache.taglibs.standard", "com.sun.faces.taglib.jsf_core",  "com.sun.faces.ext.taglib", "com.sun.faces.taglib.html_basic",};
 
     /**
      * Dotname for AsyncListener, which can be injected dynamically.
      */
-    private static final DotName ASYNC_LISTENER_INTERFACE = DotName.createSimple(AsyncListener.class.getName());
+    protected static final DotName ASYNC_LISTENER_INTERFACE = DotName.createSimple(AsyncListener.class.getName());
 
     @Override
-    public void deploy(DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
+    protected void doDeploy(DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
         final DeploymentUnit deploymentUnit = phaseContext.getDeploymentUnit();
-
-        if (!DeploymentTypeMarker.isType(DeploymentType.WAR, deploymentUnit)) {
-            return;
-        }
-
         final Map<String, ComponentDescription> componentByClass = new HashMap<String, ComponentDescription>();
         final Map<String, ComponentInstantiator> webComponents = new HashMap<String, ComponentInstantiator>();
         final EEModuleDescription moduleDescription = deploymentUnit.getAttachment(Attachments.EE_MODULE_DESCRIPTION);
         final EEApplicationClasses applicationClassesDescription = deploymentUnit.getAttachment(Attachments.EE_APPLICATION_CLASSES_DESCRIPTION);
         final CompositeIndex compositeIndex = deploymentUnit.getAttachment(org.jboss.as.server.deployment.Attachments.COMPOSITE_ANNOTATION_INDEX);
-        final String applicationName = deploymentUnit.getParent() == null ? deploymentUnit.getName() : deploymentUnit.getParent().getName();
-        if (moduleDescription == null) {
-            return; //not an ee deployment
-        }
+
         for (ComponentDescription component : moduleDescription.getComponentDescriptions()) {
             componentByClass.put(component.getComponentClassName(), component);
         }
@@ -117,7 +107,7 @@ public class WebComponentProcessor implements DeploymentUnitProcessor {
                 //this will generally be a managed bean, but it could also be an EJB
                 //TODO: make sure the component is a managed bean
                 if (!(description.getViews().size() == 1)) {
-                    throw MESSAGES.wrongComponentType(clazz);
+                    throw new RuntimeException(clazz + " has the wrong component type, is cannot be used as a web component");
                 }
                 ManagedBeanComponentInstantiator instantiator = new ManagedBeanComponentInstantiator(deploymentUnit, description);
                 webComponents.put(clazz, instantiator);
@@ -143,17 +133,13 @@ public class WebComponentProcessor implements DeploymentUnitProcessor {
         deploymentUnit.putAttachment(WebAttachments.WEB_COMPONENT_INSTANTIATORS, webComponents);
     }
 
-    @Override
-    public void undeploy(DeploymentUnit context) {
-    }
-
     /**
      * Gets all classes that are eligible for injection etc
      *
      * @param metaData
      * @return
      */
-    private Set<String> getAllComponentClasses(DeploymentUnit deploymentUnit, CompositeIndex index, WarMetaData metaData, TldsMetaData tldsMetaData) {
+    protected Set<String> getAllComponentClasses(DeploymentUnit deploymentUnit, CompositeIndex index, WarMetaData metaData, TldsMetaData tldsMetaData) {
         final Set<String> classes = new HashSet<String>();
         if (metaData.getAnnotationsMetaData() != null)
             for (Map.Entry<String, WebMetaData> webMetaData : metaData.getAnnotationsMetaData().entrySet()) {
@@ -181,7 +167,7 @@ public class WebComponentProcessor implements DeploymentUnitProcessor {
         return classes;
     }
 
-    private void getAllComponentClasses(WebCommonMetaData metaData, Set<String> classes) {
+    protected void getAllComponentClasses(WebCommonMetaData metaData, Set<String> classes) {
         if (metaData.getServlets() != null)
             for (ServletMetaData servlet : metaData.getServlets()) {
                 if (servlet.getServletClass() != null) {
@@ -198,7 +184,7 @@ public class WebComponentProcessor implements DeploymentUnitProcessor {
             }
     }
 
-    private void getAllComponentClasses(TldMetaData metaData, Set<String> classes) {
+    protected void getAllComponentClasses(TldMetaData metaData, Set<String> classes) {
         if (metaData.getValidator() != null) {
             classes.add(metaData.getValidator().getValidatorClass());
         }
@@ -212,12 +198,18 @@ public class WebComponentProcessor implements DeploymentUnitProcessor {
             }
     }
 
-    private void getAllAsyncListenerClasses(CompositeIndex index, Set<String> classes) {
+    protected void getAllAsyncListenerClasses(CompositeIndex index, Set<String> classes) {
         if (index != null) {
             Set<ClassInfo> classInfos = index.getAllKnownImplementors(ASYNC_LISTENER_INTERFACE);
             for (ClassInfo classInfo : classInfos) {
                 classes.add(classInfo.name().toString());
             }
         }
+    }
+
+    @Override
+    protected boolean canHandle(DeploymentUnit deploymentUnit) {
+        return DeploymentTypeMarker.isType(DeploymentType.WAR, deploymentUnit) &&
+                deploymentUnit.getAttachment(Attachments.EE_MODULE_DESCRIPTION) != null; // ee deployment
     }
 }

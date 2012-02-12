@@ -21,8 +21,6 @@
  */
 package org.jboss.as.web.deployment;
 
-import static org.jboss.as.web.WebMessages.MESSAGES;
-
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -36,7 +34,6 @@ import org.jboss.as.server.deployment.Attachments;
 import org.jboss.as.server.deployment.DeploymentPhaseContext;
 import org.jboss.as.server.deployment.DeploymentUnit;
 import org.jboss.as.server.deployment.DeploymentUnitProcessingException;
-import org.jboss.as.server.deployment.DeploymentUnitProcessor;
 import org.jboss.as.server.deployment.module.ResourceRoot;
 import org.jboss.metadata.parser.servlet.WebMetaDataParser;
 import org.jboss.metadata.parser.util.MetaDataElementParser;
@@ -50,9 +47,9 @@ import org.xml.sax.SAXException;
  * @author Jean-Frederic Clere
  * @author Thomas.Diesler@jboss.com
  */
-public class WebParsingDeploymentProcessor implements DeploymentUnitProcessor {
+public class WebParsingDeploymentProcessor extends AbstractDeploymentProcessor {
 
-    private static final String WEB_XML = "WEB-INF/web.xml";
+    protected static final String WEB_XML = "WEB-INF/web.xml";
     private final boolean schemaValidation;
 
     public WebParsingDeploymentProcessor() {
@@ -61,13 +58,11 @@ public class WebParsingDeploymentProcessor implements DeploymentUnitProcessor {
     }
 
     @Override
-    public void deploy(DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
+    protected void doDeploy(DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
         final DeploymentUnit deploymentUnit = phaseContext.getDeploymentUnit();
-        if (!DeploymentTypeMarker.isType(DeploymentType.WAR, deploymentUnit)) {
-            return; // Skip non web deployments
-        }
         final ResourceRoot deploymentRoot = deploymentUnit.getAttachment(Attachments.DEPLOYMENT_ROOT);
-        final VirtualFile alternateDescriptor = deploymentRoot.getAttachment(org.jboss.as.ee.structure.Attachments.ALTERNATE_WEB_DEPLOYMENT_DESCRIPTOR);
+        final VirtualFile alternateDescriptor = deploymentRoot
+                .getAttachment(org.jboss.as.ee.structure.Attachments.ALTERNATE_WEB_DEPLOYMENT_DESCRIPTOR);
         // Locate the descriptor
         final VirtualFile webXml;
         if (alternateDescriptor != null) {
@@ -94,7 +89,7 @@ public class WebParsingDeploymentProcessor implements DeploymentUnitProcessor {
                     try {
                         if (webMetaData.is23())
                             validator.validate("-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN", xmlInput);
-                        else if(webMetaData.is24())
+                        else if (webMetaData.is24())
                             validator.validate("http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd", xmlInput);
                         else if (webMetaData.is25())
                             validator.validate("http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd", xmlInput);
@@ -111,9 +106,10 @@ public class WebParsingDeploymentProcessor implements DeploymentUnitProcessor {
                 warMetaData.setWebMetaData(webMetaData);
 
             } catch (XMLStreamException e) {
-                throw new DeploymentUnitProcessingException(MESSAGES.failToParseXMLDescriptor(webXml, e.getLocation().getLineNumber(), e.getLocation().getColumnNumber()));
+                throw new DeploymentUnitProcessingException("Failed to parse " + webXml + " at ["
+                        + e.getLocation().getLineNumber() + "," + e.getLocation().getColumnNumber() + "]");
             } catch (IOException e) {
-                throw new DeploymentUnitProcessingException(MESSAGES.failToParseXMLDescriptor(webXml), e);
+                throw new DeploymentUnitProcessingException("Failed to parse " + webXml, e);
             } finally {
                 try {
                     if (is != null) {
@@ -127,6 +123,7 @@ public class WebParsingDeploymentProcessor implements DeploymentUnitProcessor {
     }
 
     @Override
-    public void undeploy(final DeploymentUnit context) {
+    protected boolean canHandle(DeploymentUnit deploymentUnit) {
+        return DeploymentTypeMarker.isType(DeploymentType.WAR, deploymentUnit);
     }
 }

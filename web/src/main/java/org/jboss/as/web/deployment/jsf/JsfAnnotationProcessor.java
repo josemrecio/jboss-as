@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.faces.bean.ManagedBean;
 import javax.faces.component.FacesComponent;
 import javax.faces.component.behavior.FacesBehavior;
@@ -38,12 +39,16 @@ import javax.faces.event.NamedEvent;
 import javax.faces.render.FacesBehaviorRenderer;
 import javax.faces.render.FacesRenderer;
 import javax.faces.validator.FacesValidator;
+
+import org.jboss.as.ee.structure.DeploymentType;
+import org.jboss.as.ee.structure.DeploymentTypeMarker;
 import org.jboss.as.server.deployment.Attachments;
 import org.jboss.as.server.deployment.DeploymentPhaseContext;
 import org.jboss.as.server.deployment.DeploymentUnit;
 import org.jboss.as.server.deployment.DeploymentUnitProcessingException;
 import org.jboss.as.server.deployment.DeploymentUnitProcessor;
 import org.jboss.as.server.deployment.annotation.CompositeIndex;
+import org.jboss.as.web.deployment.AbstractDeploymentProcessor;
 import org.jboss.as.web.deployment.ServletContextAttribute;
 import org.jboss.jandex.AnnotationInstance;
 import org.jboss.jandex.AnnotationTarget;
@@ -57,9 +62,9 @@ import org.jboss.modules.Module;
  *
  * @author John Bailey
  */
-public class JsfAnnotationProcessor implements DeploymentUnitProcessor {
+public class JsfAnnotationProcessor extends AbstractDeploymentProcessor {
 
-    private enum FacesAnnotation {
+    protected enum FacesAnnotation {
         FACES_COMPONENT(FacesComponent.class),
         FACES_CONVERTER(FacesConverter.class),
         FACES_VALIDATOR(FacesValidator.class),
@@ -79,20 +84,14 @@ public class JsfAnnotationProcessor implements DeploymentUnitProcessor {
     }
 
 
-    public void deploy(final DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
+    @Override
+    protected void doDeploy(DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
         final DeploymentUnit deploymentUnit = phaseContext.getDeploymentUnit();
 
         final Map<Class<? extends Annotation>, Set<Class<?>>> instances = new HashMap<Class<? extends Annotation>, Set<Class<?>>>();
 
         final CompositeIndex compositeIndex = deploymentUnit.getAttachment(Attachments.COMPOSITE_ANNOTATION_INDEX);
-        if (compositeIndex == null) {
-            return; // Can not continue without index
-        }
-
         final Module module = deploymentUnit.getAttachment(Attachments.MODULE);
-        if (module == null) {
-            return; // Can not continue without module
-        }
         final ClassLoader classLoader = module.getClassLoader();
 
         for (FacesAnnotation annotation : FacesAnnotation.values()) {
@@ -121,7 +120,23 @@ public class JsfAnnotationProcessor implements DeploymentUnitProcessor {
         deploymentUnit.addToAttachmentList(ServletContextAttribute.ATTACHMENT_KEY, new ServletContextAttribute(JandexAnnotationProvider.FACES_ANNOTATIONS, instances));
     }
 
-    public void undeploy(DeploymentUnit context) {
 
+    @Override
+    protected boolean canHandle(DeploymentUnit deploymentUnit) {
+        if (!DeploymentTypeMarker.isType(DeploymentType.WAR, deploymentUnit)) {
+            return false;
+        }
+
+        final CompositeIndex compositeIndex = deploymentUnit.getAttachment(Attachments.COMPOSITE_ANNOTATION_INDEX);
+        if (compositeIndex == null) {
+            return false; // Can not continue without index
+        }
+
+        final Module module = deploymentUnit.getAttachment(Attachments.MODULE);
+        if (module == null) {
+            return false; // Can not continue without module
+        }
+
+        return true;
     }
 }

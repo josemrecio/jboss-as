@@ -21,7 +21,15 @@
  */
 package org.jboss.as.web.deployment.jsf;
 
-import static org.jboss.as.web.WebMessages.MESSAGES;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamReader;
 
 import org.jboss.as.ee.component.ComponentDescription;
 import org.jboss.as.ee.component.EEApplicationClasses;
@@ -32,11 +40,10 @@ import org.jboss.as.server.deployment.Attachments;
 import org.jboss.as.server.deployment.DeploymentPhaseContext;
 import org.jboss.as.server.deployment.DeploymentUnit;
 import org.jboss.as.server.deployment.DeploymentUnitProcessingException;
-import org.jboss.as.server.deployment.DeploymentUnitProcessor;
 import org.jboss.as.server.deployment.DeploymentUtils;
 import org.jboss.as.server.deployment.annotation.CompositeIndex;
 import org.jboss.as.server.deployment.module.ResourceRoot;
-import org.jboss.as.web.WebLogger;
+import org.jboss.as.web.deployment.AbstractDeploymentProcessor;
 import org.jboss.as.web.deployment.WarMetaData;
 import org.jboss.as.web.deployment.WebAttachments;
 import org.jboss.as.web.deployment.component.WebComponentDescription;
@@ -52,36 +59,27 @@ import org.jboss.metadata.web.spec.WebMetaData;
 import org.jboss.modules.Module;
 import org.jboss.vfs.VirtualFile;
 
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 /**
  * Sets up JSF managed beans as components using information in the annotations and
  *
  * @author Stuart Douglas
  */
-public class JsfManagedBeanProcessor implements DeploymentUnitProcessor {
+public class JsfManagedBeanProcessor extends AbstractDeploymentProcessor {
 
     public static final DotName MANAGED_BEAN_ANNOTATION = DotName.createSimple("javax.faces.bean.ManagedBean");
 
-    private static final String WEB_INF_FACES_CONFIG = "WEB-INF/faces-config.xml";
+    protected static final String WEB_INF_FACES_CONFIG = "WEB-INF/faces-config.xml";
 
 
     private static final Logger log = Logger.getLogger("org.jboss.as.web.jsf");
 
-    private static final String MANAGED_BEAN = "managed-bean";
-    private static final String MANAGED_BEAN_CLASS = "managed-bean-class";
+    protected static final String MANAGED_BEAN = "managed-bean";
+    protected static final String MANAGED_BEAN_CLASS = "managed-bean-class";
 
-    private static final String CONFIG_FILES = "javax.faces.CONFIG_FILES";
+    protected static final String CONFIG_FILES = "javax.faces.CONFIG_FILES";
 
     @Override
-    public void deploy(final DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
+    protected void doDeploy(final DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
         final DeploymentUnit deploymentUnit = phaseContext.getDeploymentUnit();
         final CompositeIndex index = deploymentUnit.getAttachment(Attachments.COMPOSITE_ANNOTATION_INDEX);
         final EEModuleDescription moduleDescription = deploymentUnit.getAttachment(org.jboss.as.ee.component.Attachments.EE_MODULE_DESCRIPTION);
@@ -107,10 +105,10 @@ public class JsfManagedBeanProcessor implements DeploymentUnitProcessor {
                 final Class<?> componentClass = module.getClassLoader().loadClass(managedBean);
                 componentClass.getConstructor();
             } catch (ClassNotFoundException e) {
-                WebLogger.WEB_LOGGER.managedBeanLoadFail(managedBean);
+                log.error("Could not load JSF managed bean class " + managedBean);
                 continue;
             } catch (NoSuchMethodException e) {
-                WebLogger.WEB_LOGGER.managedBeanNoDefaultConstructor(managedBean);
+                log.error("JSF managed bean class " + managedBean + " has no default constructor");
                 continue;
             }
             installManagedBeanComponent(managedBean, moduleDescription, deploymentUnit, applicationClassesDescription);
@@ -122,7 +120,7 @@ public class JsfManagedBeanProcessor implements DeploymentUnitProcessor {
      * Parse the faces config files looking for managed bean classes. The parser is quite
      * simplistic as the only information we need is the managed-bean-class element
      */
-    private void processXmlManagedBeans(final DeploymentUnit deploymentUnit, final Set<String> managedBeanClasses) {
+    protected void processXmlManagedBeans(final DeploymentUnit deploymentUnit, final Set<String> managedBeanClasses) {
         for (final VirtualFile facesConfig : getConfigurationFiles(deploymentUnit)) {
             InputStream is = null;
             try {
@@ -168,7 +166,7 @@ public class JsfManagedBeanProcessor implements DeploymentUnitProcessor {
                     }
                 }
             } catch (Exception e) {
-                WebLogger.WEB_LOGGER.managedBeansConfigParseFailed(facesConfig);
+                log.error("Failed to parse " + facesConfig + " injection into manage beans defined in this file will not be available");
             } finally {
                 try {
                     if (is != null) {
@@ -231,7 +229,7 @@ public class JsfManagedBeanProcessor implements DeploymentUnitProcessor {
         return ret;
     }
 
-    private void handleAnnotations(final CompositeIndex index, final Set<String> managedBeanClasses) throws DeploymentUnitProcessingException {
+    protected void handleAnnotations(final CompositeIndex index, final Set<String> managedBeanClasses) throws DeploymentUnitProcessingException {
         final List<AnnotationInstance> annotations = index.getAnnotations(MANAGED_BEAN_ANNOTATION);
         if (annotations != null) {
             for (final AnnotationInstance annotation : annotations) {
@@ -241,20 +239,34 @@ public class JsfManagedBeanProcessor implements DeploymentUnitProcessor {
                     final String className = ((ClassInfo) target).name().toString();
                     managedBeanClasses.add(className);
                 } else {
-                    throw new DeploymentUnitProcessingException(MESSAGES.invalidManagedBeanAnnotation(target));
+                    throw new DeploymentUnitProcessingException("@ManagedBean can only be placed on a class");
                 }
             }
         }
     }
 
-    private void installManagedBeanComponent(String className, final EEModuleDescription moduleDescription, final DeploymentUnit deploymentUnit, final EEApplicationClasses applicationClassesDescription) {
+    protected void installManagedBeanComponent(String className, final EEModuleDescription moduleDescription, final DeploymentUnit deploymentUnit, final EEApplicationClasses applicationClassesDescription) {
         final ComponentDescription componentDescription = new WebComponentDescription(MANAGED_BEAN.toString() + "." + className, className, moduleDescription, deploymentUnit.getServiceName(), applicationClassesDescription);
         moduleDescription.addComponent(componentDescription);
         deploymentUnit.getAttachment(WebAttachments.WEB_COMPONENT_INSTANTIATORS).put(componentDescription.getComponentClassName(), new WebComponentInstantiator(deploymentUnit, componentDescription));
     }
 
     @Override
-    public void undeploy(final DeploymentUnit context) {
+    protected boolean canHandle(DeploymentUnit deploymentUnit) {
+        final CompositeIndex index = deploymentUnit.getAttachment(Attachments.COMPOSITE_ANNOTATION_INDEX);
+        if (index == null) {
+            return false;
+        }
 
+        final Module module = deploymentUnit.getAttachment(Attachments.MODULE);
+        if (module == null) {
+            return false;
+        }
+
+        if (!DeploymentTypeMarker.isType(DeploymentType.WAR, deploymentUnit)) {
+            return false;
+        }
+
+        return true;
     }
 }

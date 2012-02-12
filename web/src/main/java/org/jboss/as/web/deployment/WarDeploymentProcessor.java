@@ -46,6 +46,8 @@ import org.jboss.as.clustering.web.DistributedCacheManagerFactory;
 import org.jboss.as.clustering.web.DistributedCacheManagerFactoryService;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.ee.component.EEModuleDescription;
+import org.jboss.as.ee.structure.DeploymentType;
+import org.jboss.as.ee.structure.DeploymentTypeMarker;
 import org.jboss.as.naming.deployment.JndiNamingDependencyProcessor;
 import org.jboss.as.security.deployment.AbstractSecurityDeployer;
 import org.jboss.as.security.plugins.SecurityDomainContext;
@@ -55,7 +57,6 @@ import org.jboss.as.server.deployment.Attachments;
 import org.jboss.as.server.deployment.DeploymentPhaseContext;
 import org.jboss.as.server.deployment.DeploymentUnit;
 import org.jboss.as.server.deployment.DeploymentUnitProcessingException;
-import org.jboss.as.server.deployment.DeploymentUnitProcessor;
 import org.jboss.as.server.deployment.SetupAction;
 import org.jboss.as.web.VirtualHost;
 import org.jboss.as.web.WebSubsystemServices;
@@ -88,7 +89,7 @@ import org.jboss.vfs.VirtualFile;
  * @author Emanuel Muckenhuber
  * @author Anil.Saldhana@redhat.com
  */
-public class WarDeploymentProcessor implements DeploymentUnitProcessor {
+public class WarDeploymentProcessor extends AbstractDeploymentProcessor {
 
     private final String defaultHost;
 
@@ -103,12 +104,9 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
      * {@inheritDoc}
      */
     @Override
-    public void deploy(final DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
+    protected void doDeploy(DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
         final DeploymentUnit deploymentUnit = phaseContext.getDeploymentUnit();
         final WarMetaData metaData = deploymentUnit.getAttachment(WarMetaData.ATTACHMENT_KEY);
-        if (metaData == null) {
-            return;
-        }
         String hostName = hostNameOfDeployment(metaData, defaultHost);
         processDeployment(hostName, metaData, deploymentUnit, phaseContext.getServiceTarget());
     }
@@ -147,8 +145,8 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                 .getAttachmentList(org.jboss.as.ee.component.Attachments.WEB_SETUP_ACTIONS);
 
         // Create the context
-        final StandardContext webContext = new StandardContext();
-        final JBossContextConfig config = new JBossContextConfig(deploymentUnit);
+        final StandardContext webContext = createContext(deploymentUnit);
+        final JBossContextConfig config = createContextConfig(webContext, deploymentUnit);
 
         // Add SecurityAssociationValve right at the beginning
         webContext.addValve(new SecurityContextAssociationValve(deploymentUnit));
@@ -159,7 +157,6 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
         } catch (IOException e) {
             throw new DeploymentUnitProcessingException(e);
         }
-        webContext.addLifecycleListener(config);
 
         final String pathName = pathNameOfDeployment(deploymentUnit, metaData);
         webContext.setPath(pathName);
@@ -341,7 +338,7 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
         return pathName;
     }
 
-    void processManagement(final DeploymentUnit unit, JBossWebMetaData metaData) {
+    protected void processManagement(final DeploymentUnit unit, JBossWebMetaData metaData) {
         for (final JBossServletMetaData servlet : metaData.getServlets()) {
             try {
                 final String name = servlet.getName().replace(' ', '_');
@@ -353,7 +350,31 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
                 continue;
             }
         }
+    }
 
+    @Override
+    protected boolean canHandle(DeploymentUnit deploymentUnit) {
+        if (!DeploymentTypeMarker.isType(DeploymentType.WAR, deploymentUnit)) {
+            return false;
+        }
+
+        final WarMetaData warMetaData = deploymentUnit.getAttachment(WarMetaData.ATTACHMENT_KEY);
+        if(warMetaData == null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    protected StandardContext createContext(DeploymentUnit deploymentUnit) {
+        return new StandardContext();
+    }
+
+    protected JBossContextConfig createContextConfig(StandardContext webContext, DeploymentUnit deploymentUnit) {
+        JBossContextConfig config = new JBossContextConfig(deploymentUnit);
+        webContext.addLifecycleListener(config);
+
+        return config;
     }
 
     protected Object getInstance(Module module, String moduleName, String className, List<ParamValueMetaData> params)

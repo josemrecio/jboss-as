@@ -43,7 +43,6 @@ import org.jboss.as.server.deployment.Attachments;
 import org.jboss.as.server.deployment.DeploymentPhaseContext;
 import org.jboss.as.server.deployment.DeploymentUnit;
 import org.jboss.as.server.deployment.DeploymentUnitProcessingException;
-import org.jboss.as.server.deployment.DeploymentUnitProcessor;
 import org.jboss.as.server.deployment.module.ResourceRoot;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ear.spec.EarMetaData;
@@ -67,20 +66,16 @@ import org.jboss.vfs.VirtualFile;
  *
  * @author Remy Maucherat
  */
-public class WarMetaDataProcessor implements DeploymentUnitProcessor {
+public class WarMetaDataProcessor extends AbstractDeploymentProcessor {
 
     /**
      * Merge everything into WarMetaData.
      */
-    public void deploy(DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
+    @Override
+    protected void doDeploy(DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
         final DeploymentUnit deploymentUnit = phaseContext.getDeploymentUnit();
-        if (!DeploymentTypeMarker.isType(DeploymentType.WAR, deploymentUnit)) {
-            return; // Skip non web deployments
-        }
         WarMetaData warMetaData = deploymentUnit.getAttachment(WarMetaData.ATTACHMENT_KEY);
-        assert warMetaData != null;
         List<ResourceRoot> resourceRoots = deploymentUnit.getAttachment(Attachments.RESOURCE_ROOTS);
-        assert resourceRoots != null;
 
         WebMetaData specMetaData = warMetaData.getWebMetaData();
         boolean isComplete = false;
@@ -359,9 +354,6 @@ public class WarMetaDataProcessor implements DeploymentUnitProcessor {
                 }
             }
         }
-    }
-
-    public void undeploy(final DeploymentUnit context) {
     }
 
     /**
@@ -708,4 +700,22 @@ public class WarMetaDataProcessor implements DeploymentUnitProcessor {
 
     }
 
+    @Override
+    protected boolean canHandle(DeploymentUnit deploymentUnit) {
+        if (!DeploymentTypeMarker.isType(DeploymentType.WAR, deploymentUnit)) {
+            return false;
+        }
+
+        WarMetaData warMetaData = deploymentUnit.getAttachment(WarMetaData.ATTACHMENT_KEY);
+        if (warMetaData == null) {
+            return false;
+        }
+
+        List<ResourceRoot> resourceRoots = deploymentUnit.getAttachment(Attachments.RESOURCE_ROOTS);
+        if (resourceRoots == null) {
+            return false;
+        }
+
+        return true;
+    }
 }

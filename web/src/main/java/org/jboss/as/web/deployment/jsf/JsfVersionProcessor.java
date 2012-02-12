@@ -21,36 +21,34 @@
  */
 package org.jboss.as.web.deployment.jsf;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.jboss.as.ee.structure.DeploymentType;
+import org.jboss.as.ee.structure.DeploymentTypeMarker;
 import org.jboss.as.server.deployment.DeploymentPhaseContext;
 import org.jboss.as.server.deployment.DeploymentUnit;
 import org.jboss.as.server.deployment.DeploymentUnitProcessingException;
-import org.jboss.as.server.deployment.DeploymentUnitProcessor;
+import org.jboss.as.web.deployment.AbstractDeploymentProcessor;
 import org.jboss.as.web.deployment.JsfVersionMarker;
 import org.jboss.as.web.deployment.WarMetaData;
 import org.jboss.metadata.javaee.spec.ParamValueMetaData;
 import org.jboss.metadata.web.spec.WebFragmentMetaData;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author Stuart Douglas
  * @author Stan Silvert
  */
-public class JsfVersionProcessor implements DeploymentUnitProcessor {
+public class JsfVersionProcessor extends AbstractDeploymentProcessor {
 
     public static final String JSF_CONFIG_NAME_PARAM = "org.jboss.jbossfaces.JSF_CONFIG_NAME";
     public static final String WAR_BUNDLES_JSF_IMPL_PARAM = "org.jboss.jbossfaces.WAR_BUNDLES_JSF_IMPL";
 
     @Override
-    public void deploy(final DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
+    protected void doDeploy(DeploymentPhaseContext phaseContext) throws DeploymentUnitProcessingException {
         final DeploymentUnit deploymentUnit = phaseContext.getDeploymentUnit();
         final DeploymentUnit topLevelDeployment = deploymentUnit.getParent() == null ? deploymentUnit : deploymentUnit.getParent();
         final WarMetaData metaData = deploymentUnit.getAttachment(WarMetaData.ATTACHMENT_KEY);
-
-        if (metaData == null) {
-            return;
-        }
 
         List<ParamValueMetaData> contextParams = new ArrayList<ParamValueMetaData>();
 
@@ -86,6 +84,16 @@ public class JsfVersionProcessor implements DeploymentUnitProcessor {
     }
 
     @Override
-    public void undeploy(final DeploymentUnit context) {
+    protected boolean canHandle(DeploymentUnit deploymentUnit) {
+        if (!DeploymentTypeMarker.isType(DeploymentType.WAR, deploymentUnit)) {
+            return false;
+        }
+
+        final WarMetaData warMetaData = deploymentUnit.getAttachment(WarMetaData.ATTACHMENT_KEY);
+        if(warMetaData == null) {
+            return false;
+        }
+
+        return true;
     }
 }
