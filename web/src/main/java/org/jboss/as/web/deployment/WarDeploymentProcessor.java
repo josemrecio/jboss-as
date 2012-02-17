@@ -67,6 +67,9 @@ import org.jboss.as.web.security.WarJaccService;
 import org.jboss.dmr.ModelNode;
 import org.jboss.metadata.javaee.spec.ParamValueMetaData;
 import org.jboss.metadata.web.jboss.ContainerListenerMetaData;
+import org.mobicents.servlet.sip.catalina.CatalinaSipContext;
+//import org.mobicents.servlet.sip.catalina.annotations.DefaultSipInstanceManager;
+import org.mobicents.servlet.sip.startup.jboss.SipJBossContextConfig;
 import org.jboss.metadata.web.jboss.JBossServletMetaData;
 import org.jboss.metadata.web.jboss.JBossWebMetaData;
 import org.jboss.metadata.web.jboss.ValveMetaData;
@@ -82,6 +85,7 @@ import org.jboss.msc.service.ServiceTarget;
 import org.jboss.security.SecurityConstants;
 import org.jboss.security.SecurityUtil;
 import org.jboss.vfs.VirtualFile;
+import org.mobicents.servlet.sip.startup.SipStandardContext;
 
 /**
  * {@code DeploymentUnitProcessor} creating the actual deployment services.
@@ -164,6 +168,15 @@ public class WarDeploymentProcessor extends AbstractDeploymentProcessor {
         webContext.setCrossContext(!metaData.isDisableCrossContext());
 
         final WebInjectionContainer injectionContainer = new WebInjectionContainer(module.getClassLoader());
+        // FIXME - josemrecio
+        /*
+        if (webContext instanceof SipStandardContext) {
+            Context a = null;
+            Map<String, Map<String, String>> b = null;
+            final DefaultSipInstanceManager sipInstanceManager = new DefaultSipInstanceManager(a,b,(CatalinaSipContext) webContext, module.getClassLoader());
+            ((SipStandardContext)webContext).setInstanceManager(sipInstanceManager);
+        }
+        */
 
         //see AS7-2077
         //basically we want to ignore components that have failed for whatever reason
@@ -367,14 +380,24 @@ public class WarDeploymentProcessor extends AbstractDeploymentProcessor {
     }
 
     protected StandardContext createContext(DeploymentUnit deploymentUnit) {
-        return new StandardContext();
+        // return new StandardContext();
+        final WarMetaData warMetaData = deploymentUnit.getAttachment(WarMetaData.ATTACHMENT_KEY);
+        if (warMetaData.getSipMetaData() != null) {
+            return new SipStandardContext();
+        }
+        else return new StandardContext();
     }
 
     protected JBossContextConfig createContextConfig(StandardContext webContext, DeploymentUnit deploymentUnit) {
-        JBossContextConfig config = new JBossContextConfig(deploymentUnit);
-        webContext.addLifecycleListener(config);
-
-        return config;
+        if (webContext instanceof SipStandardContext) {
+            SipJBossContextConfig config = new SipJBossContextConfig(deploymentUnit);
+            webContext.addLifecycleListener(config);
+            return config;
+        } else {
+            JBossContextConfig config = new JBossContextConfig(deploymentUnit);
+            webContext.addLifecycleListener(config);
+            return config;
+        }
     }
 
     protected Object getInstance(Module module, String moduleName, String className, List<ParamValueMetaData> params)
