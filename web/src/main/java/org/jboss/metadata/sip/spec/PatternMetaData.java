@@ -22,10 +22,6 @@
 
 package org.jboss.metadata.sip.spec;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElements;
-import javax.xml.bind.annotation.XmlType;
-
 import org.jboss.metadata.javaee.support.IdMetaDataImpl;
 
 /**
@@ -34,7 +30,6 @@ import org.jboss.metadata.javaee.support.IdMetaDataImpl;
  * @author jean.deruelle@gmail.com
  * @version $Revision$
  */
-@XmlType(name = "patternType")
 public class PatternMetaData extends IdMetaDataImpl {
 
     private static final long serialVersionUID = 1;
@@ -43,11 +38,6 @@ public class PatternMetaData extends IdMetaDataImpl {
     /**
      * @param condition the condition to set
      */
-    @XmlElements({ @XmlElement(name = "and", type = AndMetaData.class),
-            @XmlElement(name = "contains", type = ContainsMetaData.class),
-            @XmlElement(name = "equal", type = EqualMetaData.class), @XmlElement(name = "exists", type = ExistsMetaData.class),
-            @XmlElement(name = "not", type = NotMetaData.class), @XmlElement(name = "or", type = OrMetaData.class),
-            @XmlElement(name = "subdomain-of", type = SubdomainOfMetaData.class) })
     public void setCondition(ConditionMetaData condition) {
         this.condition = condition;
     }

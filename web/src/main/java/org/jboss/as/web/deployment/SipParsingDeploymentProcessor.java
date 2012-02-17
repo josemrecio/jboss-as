@@ -38,7 +38,7 @@ import org.jboss.as.server.deployment.module.ResourceRoot;
 import org.jboss.metadata.parser.util.MetaDataElementParser;
 import org.jboss.metadata.parser.util.XMLSchemaValidator;
 import org.jboss.metadata.sip.spec.SipMetaData;
-import org.jboss.metadata.sip.spec.SipMetaDataParser;
+import org.jboss.metadata.sip.parser.SipMetaDataParser;
 import org.jboss.vfs.VirtualFile;
 
 /**

@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.jboss.metadata.sip.spec;
+package org.jboss.metadata.sip.parser;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -30,6 +30,10 @@ import org.jboss.metadata.javaee.spec.EnvironmentRefsGroupMetaData;
 import org.jboss.metadata.parser.ee.DescriptionGroupMetaDataParser;
 import org.jboss.metadata.parser.ee.EnvironmentRefsGroupMetaDataParser;
 import org.jboss.metadata.parser.util.MetaDataElementParser;
+import org.jboss.metadata.sip.spec.Element;
+import org.jboss.metadata.sip.spec.Sip11MetaData;
+import org.jboss.metadata.sip.spec.SipMetaData;
+import org.jboss.metadata.sip.spec.Attribute;
 
 /**
  * Stax parser for web metadata

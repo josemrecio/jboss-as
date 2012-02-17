@@ -33,12 +33,11 @@ import java.util.Map;
 public enum Attribute {
     // always first
     UNKNOWN(null),
-
     ID("id"),
-
     METADATA_COMPLETE("metadata-complete"),
-
-    VERSION("version"), ;
+    VERSION("version"),
+    IGNORE_CASE("ignore-case"),
+    ;
 
     private final String name;
 

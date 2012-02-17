@@ -194,13 +194,15 @@ public class SipJBossContextConfig extends JBossContextConfig {
         }
 
         // sip security contstraints
-        List<SipSecurityConstraintMetaData> sipConstraintMetaDatas = convergedMetaData.getSipSecurityContraints();
+        List<SipSecurityConstraintMetaData> sipConstraintMetaDatas = convergedMetaData.getSipSecurityConstraints();
         if (sipConstraintMetaDatas != null) {
             for (SipSecurityConstraintMetaData sipConstraintMetaData : sipConstraintMetaDatas) {
                 SipSecurityConstraint sipSecurityConstraint = new SipSecurityConstraint();
                 sipSecurityConstraint.setDisplayName(sipConstraintMetaData.getDisplayName());
-                for (String role : sipConstraintMetaData.getAuthConstraint().getRoleNames()) {
-                    sipSecurityConstraint.addAuthRole(role);
+                if (sipConstraintMetaData.getAuthConstraint() != null) {
+                    for (String role : sipConstraintMetaData.getAuthConstraint().getRoleNames()) {
+                        sipSecurityConstraint.addAuthRole(role);
+                    }
                 }
                 if (sipConstraintMetaData.getProxyAuthentication() != null) {
                     sipSecurityConstraint.setProxyAuthentication(true);

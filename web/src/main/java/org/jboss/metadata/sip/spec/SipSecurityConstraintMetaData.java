@@ -25,9 +25,6 @@ package org.jboss.metadata.sip.spec;
 import java.util.Collections;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
-
 import org.jboss.metadata.javaee.spec.EmptyMetaData;
 import org.jboss.metadata.javaee.support.IdMetaDataImpl;
 import org.jboss.metadata.web.spec.AuthConstraintMetaData;
@@ -40,8 +37,6 @@ import org.jboss.metadata.web.spec.UserDataConstraintMetaData;
  * @author jean.deruelle@gmail.com
  * @version $Revision$
  */
-@XmlType(name = "security-constraintType", propOrder = { "displayName", "resourceCollections", "proxyAuthentication",
-        "authConstraint", "userDataConstraint" })
 public class SipSecurityConstraintMetaData extends IdMetaDataImpl {
     private static final long serialVersionUID = 1;
 
@@ -71,7 +66,6 @@ public class SipSecurityConstraintMetaData extends IdMetaDataImpl {
         return resourceCollections;
     }
 
-    @XmlElement(name = "resource-collection")
     public void setResourceCollections(SipResourceCollectionsMetaData resourceCollections) {
         this.resourceCollections = resourceCollections;
     }

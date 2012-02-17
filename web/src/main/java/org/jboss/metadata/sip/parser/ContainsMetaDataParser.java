@@ -1,14 +1,20 @@
-package org.jboss.metadata.sip.spec;
+package org.jboss.metadata.sip.parser;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-
 import org.jboss.metadata.parser.util.MetaDataElementParser;
+import org.jboss.metadata.sip.spec.ContainsMetaData;
+import org.jboss.metadata.sip.spec.Attribute;
+import org.jboss.metadata.sip.spec.Element;
 
-public class SipServletSelectionMetaDataParser extends MetaDataElementParser {
+/**
+ * @author josemrecio@gmail.com
+ *
+ */
+public class ContainsMetaDataParser extends MetaDataElementParser {
 
-    public static SipServletSelectionMetaData parse(XMLStreamReader reader) throws XMLStreamException {
-        SipServletSelectionMetaData servletSelection = new SipServletSelectionMetaData();
+    public static ContainsMetaData parse(XMLStreamReader reader) throws XMLStreamException {
+        ContainsMetaData containsMetaData = new ContainsMetaData();
 
         // Handle attributes
         final int count = reader.getAttributeCount();
@@ -28,21 +34,24 @@ public class SipServletSelectionMetaDataParser extends MetaDataElementParser {
         while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
             final Element element = Element.forName(reader.getLocalName());
             switch (element) {
-                case MAIN_SERVLET:
-                    if (servletSelection.getMainServlet() != null) {
-                        throw duplicateNamedElement(reader, Element.MAIN_SERVLET.name());
+                case VAR:
+                    if (containsMetaData.getVar() != null) {
+                        throw unexpectedElement(reader);
                     }
-                    servletSelection.setMainServlet(getElementText(reader));
+                    containsMetaData.setFromVarMetaData(VarMetaDataParser.parse(reader));
                     break;
-                case SERVLET_MAPPING:
-                    servletSelection.addToSipServletMappings(SipServletMappingMetaDataParser.parse(reader));
+                case VALUE:
+                    if (containsMetaData.getValue() != null) {
+                        throw unexpectedElement(reader);
+                    }
+                    containsMetaData.setValue(reader.getElementText());
                     break;
                 default:
                     throw unexpectedElement(reader);
             }
         }
 
-        return servletSelection;
+        return containsMetaData;
     }
 
 }

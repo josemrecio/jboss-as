@@ -25,10 +25,6 @@ package org.jboss.metadata.sip.spec;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlTransient;
-
 import org.jboss.metadata.javaee.spec.AnnotatedEJBReferencesMetaData;
 import org.jboss.metadata.javaee.spec.DataSourceMetaData;
 import org.jboss.metadata.javaee.spec.DataSourcesMetaData;
@@ -61,6 +57,7 @@ import org.jboss.metadata.javaee.support.AbstractMappedMetaData;
 import org.jboss.metadata.javaee.support.IdMetaDataImplWithDescriptionGroup;
 import org.jboss.metadata.web.spec.ListenerMetaData;
 import org.jboss.metadata.web.spec.LocaleEncodingsMetaData;
+import org.jboss.metadata.web.spec.SessionConfigMetaData;
 import org.mobicents.servlet.sip.annotation.ConcurrencyControlMode;
 
 /**
@@ -80,9 +77,9 @@ public abstract class SipMetaData extends IdMetaDataImplWithDescriptionGroup imp
     private List<ParamValueMetaData> contextParams;
     private SipServletSelectionMetaData servletSelection;
     private ProxyConfigMetaData proxyConfig;
-    private ServletsMetaData servlets;
+    private SipServletsMetaData servlets;
     private SessionConfigMetaData sipSessionConfig;
-    private List<SipSecurityConstraintMetaData> sipSecurityContraints;
+    private List<SipSecurityConstraintMetaData> sipSecurityConstraints;
     private SipLoginConfigMetaData sipLoginConfig;
     private SecurityRolesMetaData securityRoles;
     private LocaleEncodingsMetaData localEncodings;
@@ -103,7 +100,6 @@ public abstract class SipMetaData extends IdMetaDataImplWithDescriptionGroup imp
      * @param publicId
      * @param systemId
      */
-    @XmlTransient
     public void setDTD(String root, String publicId, String systemId) {
         this.dtdPublicId = publicId;
         this.dtdSystemId = systemId;
@@ -114,7 +110,6 @@ public abstract class SipMetaData extends IdMetaDataImplWithDescriptionGroup imp
      *
      * @return the value of the web.xml dtd public id
      */
-    @XmlTransient
     public String getDtdPublicId() {
         return dtdPublicId;
     }
@@ -124,7 +119,6 @@ public abstract class SipMetaData extends IdMetaDataImplWithDescriptionGroup imp
      *
      * @return the value of the web.xml dtd system id
      */
-    @XmlTransient
     public String getDtdSystemId() {
         return dtdSystemId;
     }
@@ -133,7 +127,6 @@ public abstract class SipMetaData extends IdMetaDataImplWithDescriptionGroup imp
         return version;
     }
 
-    @XmlAttribute
     public void setVersion(String version) {
         this.version = version;
     }
@@ -143,22 +136,18 @@ public abstract class SipMetaData extends IdMetaDataImplWithDescriptionGroup imp
      *
      * @return true if this is a javaee 2.3 version application
      */
-    @XmlTransient
     public boolean is10() {
         return dtdPublicId != null && dtdPublicId.equals("-//Java Community Process//DTD SIP Application 1.0//EN");
     }
 
-    @XmlTransient
     public boolean is11() {
         return version != null && version.equals("1.1");
     }
 
-    @XmlElement(name = "distributable")
     public EmptyMetaData getDistributable() {
         return distributable;
     }
 
-    @XmlElement(name = "distributable")
     public void setDistributable(EmptyMetaData distributable) {
         this.distributable = distributable;
     }
@@ -167,7 +156,6 @@ public abstract class SipMetaData extends IdMetaDataImplWithDescriptionGroup imp
         return sipSessionConfig;
     }
 
-    @XmlElement(name = "session-config")
     public void setSipSessionConfig(SessionConfigMetaData sessionConfig) {
         this.sipSessionConfig = sessionConfig;
     }
@@ -176,7 +164,6 @@ public abstract class SipMetaData extends IdMetaDataImplWithDescriptionGroup imp
         return contextParams;
     }
 
-    @XmlElement(name = "context-param")
     public void setContextParams(List<ParamValueMetaData> params) {
         this.contextParams = params;
     }
@@ -185,7 +172,6 @@ public abstract class SipMetaData extends IdMetaDataImplWithDescriptionGroup imp
         return listeners;
     }
 
-    @XmlElement(name = "listener")
     public void setListeners(List<ListenerMetaData> listeners) {
         this.listeners = listeners;
     }
@@ -194,7 +180,6 @@ public abstract class SipMetaData extends IdMetaDataImplWithDescriptionGroup imp
         return localEncodings;
     }
 
-    @XmlElement(name = "locale-encoding-mapping-list")
     public void setLocalEncodings(LocaleEncodingsMetaData localEncodings) {
         this.localEncodings = localEncodings;
     }
@@ -203,35 +188,31 @@ public abstract class SipMetaData extends IdMetaDataImplWithDescriptionGroup imp
         return sipLoginConfig;
     }
 
-    @XmlElement(name = "login-config")
     public void setSipLoginConfig(SipLoginConfigMetaData sipLoginConfig) {
         this.sipLoginConfig = sipLoginConfig;
     }
 
-    public List<SipSecurityConstraintMetaData> getSipSecurityContraints() {
-        return sipSecurityContraints;
+    public List<SipSecurityConstraintMetaData> getSipSecurityConstraints() {
+        return sipSecurityConstraints;
     }
 
-    @XmlElement(name = "security-constraint")
-    public void setSipSecurityContraints(List<SipSecurityConstraintMetaData> sipSecurityContraints) {
-        this.sipSecurityContraints = sipSecurityContraints;
+    public void setSipSecurityConstraints(List<SipSecurityConstraintMetaData> sipSecurityConstraints) {
+        this.sipSecurityConstraints = sipSecurityConstraints;
     }
 
     public SecurityRolesMetaData getSecurityRoles() {
         return securityRoles;
     }
 
-    @XmlElement(name = "security-role")
     public void setSecurityRoles(SecurityRolesMetaData securityRoles) {
         this.securityRoles = securityRoles;
     }
 
-    public ServletsMetaData getServlets() {
+    public SipServletsMetaData getServlets() {
         return servlets;
     }
 
-    @XmlElement(name = "servlet")
-    public void setServlets(ServletsMetaData sipServlets) {
+    public void setServlets(SipServletsMetaData sipServlets) {
         this.servlets = sipServlets;
     }
 
@@ -281,8 +262,7 @@ public abstract class SipMetaData extends IdMetaDataImplWithDescriptionGroup imp
         return null;
     }
 
-    // TODO?
-    @XmlTransient
+    // TODO: josemrecio - annotation
     public AnnotatedEJBReferencesMetaData getAnnotatedEjbReferences() {
         AnnotatedEJBReferencesMetaData refs = null;
         if (jndiEnvironmentRefsGroup != null)
@@ -376,7 +356,6 @@ public abstract class SipMetaData extends IdMetaDataImplWithDescriptionGroup imp
         return messageDestinations;
     }
 
-    @XmlElement(name = "message-destination")
     public void setMessageDestinations(MessageDestinationsMetaData messageDestinations) {
         this.messageDestinations = messageDestinations;
     }
@@ -419,7 +398,6 @@ public abstract class SipMetaData extends IdMetaDataImplWithDescriptionGroup imp
     /**
      * @return the applicationName
      */
-    @XmlElement(name = "app-name")
     public String getApplicationName() {
         return applicationName;
     }
@@ -427,7 +405,6 @@ public abstract class SipMetaData extends IdMetaDataImplWithDescriptionGroup imp
     /**
      * @param sipApplicationKeyMethod the sipApplicationKeyMethod to set
      */
-    @XmlTransient
     public void setSipApplicationKeyMethod(Method sipApplicationKeyMethod) {
         this.sipApplicationKeyMethod = sipApplicationKeyMethod;
     }
@@ -435,17 +412,14 @@ public abstract class SipMetaData extends IdMetaDataImplWithDescriptionGroup imp
     /**
      * @return the sipApplicationKeyMethod
      */
-    @XmlTransient
     public Method getSipApplicationKeyMethod() {
         return sipApplicationKeyMethod;
     }
 
-    @XmlTransient
     public ConcurrencyControlMode getConcurrencyControlMode() {
         return concurrencyControlMode;
     }
 
-    @XmlTransient
     public void setConcurrencyControlMode(ConcurrencyControlMode mode) {
         this.concurrencyControlMode = mode;
     }

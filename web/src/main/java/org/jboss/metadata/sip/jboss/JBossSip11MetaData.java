@@ -22,8 +22,6 @@
 
 package org.jboss.metadata.sip.jboss;
 
-import javax.xml.bind.annotation.XmlAttribute;
-
 import org.jboss.metadata.sip.spec.SipMetaData;
 
 /**
@@ -31,14 +29,6 @@ import org.jboss.metadata.sip.spec.SipMetaData;
  *
  * @author jean.deruelle@gmail.com
  */
-// @XmlRootElement(name="sip-app", namespace="")
-// @JBossXmlSchema(
-// xmlns={@XmlNs(namespaceURI = "", prefix = "sipservlet")},
-// ignoreUnresolvedFieldOrClass=false,
-// namespace="",
-// elementFormDefault=XmlNsForm.UNSET,
-// normalizeSpace=true,
-// strict=false)
 public class JBossSip11MetaData extends SipMetaData {
     private static final long serialVersionUID = 1;
     private boolean metadataComplete;
@@ -47,7 +37,6 @@ public class JBossSip11MetaData extends SipMetaData {
         return metadataComplete;
     }
 
-    @XmlAttribute(name = "metadata-complete")
     public void setMetadataComplete(boolean metadataComplete) {
         this.metadataComplete = metadataComplete;
     }

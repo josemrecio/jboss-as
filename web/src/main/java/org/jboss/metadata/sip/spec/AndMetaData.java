@@ -24,9 +24,6 @@ package org.jboss.metadata.sip.spec;
 
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElements;
-
 /**
  * @author jean.deruelle@gmail.com
  *
@@ -38,11 +35,6 @@ public class AndMetaData extends ConditionMetaData {
     /**
      * @param condition the condition to set
      */
-    @XmlElements({ @XmlElement(name = "and", type = AndMetaData.class),
-            @XmlElement(name = "contains", type = ContainsMetaData.class),
-            @XmlElement(name = "equal", type = EqualMetaData.class), @XmlElement(name = "exists", type = ExistsMetaData.class),
-            @XmlElement(name = "not", type = NotMetaData.class), @XmlElement(name = "or", type = OrMetaData.class),
-            @XmlElement(name = "subdomain-of", type = SubdomainOfMetaData.class) })
     public void setConditions(List<ConditionMetaData> conditions) {
         this.conditions = conditions;
     }

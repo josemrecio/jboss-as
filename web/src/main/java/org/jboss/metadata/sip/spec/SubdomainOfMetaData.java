@@ -22,8 +22,6 @@
 
 package org.jboss.metadata.sip.spec;
 
-import javax.xml.bind.annotation.XmlElement;
-
 /**
  * @author jean.deruelle@gmail.com
  *
@@ -36,7 +34,6 @@ public class SubdomainOfMetaData extends ConditionMetaData {
     /**
      * @param var the var to set
      */
-    @XmlElement(name = "var")
     public void setVar(String var) {
         this.var = var;
     }
@@ -51,7 +48,6 @@ public class SubdomainOfMetaData extends ConditionMetaData {
     /**
      * @param value the value to set
      */
-    @XmlElement(name = "value")
     public void setValue(String value) {
         this.value = value;
     }
@@ -61,5 +57,12 @@ public class SubdomainOfMetaData extends ConditionMetaData {
      */
     public String getValue() {
         return value;
+    }
+
+    /**
+     * @param varMetaData the object to copy values from
+     */
+    public void setFromVarMetaData(VarMetaData varMetaData) {
+        setVar(varMetaData.getVar());
     }
 }

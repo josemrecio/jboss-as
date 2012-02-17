@@ -25,9 +25,6 @@ package org.jboss.metadata.sip.spec;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlType;
-
 import org.jboss.metadata.javaee.support.IdMetaDataImpl;
 import org.mobicents.servlet.sip.ruby.SipRubyController;
 
@@ -35,7 +32,6 @@ import org.mobicents.servlet.sip.ruby.SipRubyController;
  * @author jean.deruelle@gmail.com
  * @version $Revision$
  */
-@XmlType(name = "servlet-SelectionType")
 public class SipServletSelectionMetaData extends IdMetaDataImpl {
     private static final long serialVersionUID = 1;
 
@@ -64,7 +60,6 @@ public class SipServletSelectionMetaData extends IdMetaDataImpl {
         sipServletMappings.add(sipServletMapping);
     }
 
-    @XmlElement(name = "servlet-mapping")
     public void setSipServletMappings(List<SipServletMappingMetaData> sipServletMappings) {
         this.sipServletMappings = sipServletMappings;
     }

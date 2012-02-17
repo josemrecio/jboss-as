@@ -34,14 +34,15 @@ import org.jboss.metadata.javaee.spec.ParamValueMetaData;
 import org.jboss.metadata.javaee.spec.SecurityRolesMetaData;
 import org.jboss.metadata.sip.spec.ProxyConfigMetaData;
 import org.jboss.metadata.sip.spec.ServletsMetaData;
-import org.jboss.metadata.sip.spec.SessionConfigMetaData;
 import org.jboss.metadata.sip.spec.Sip11MetaData;
 import org.jboss.metadata.sip.spec.SipLoginConfigMetaData;
 import org.jboss.metadata.sip.spec.SipMetaData;
 import org.jboss.metadata.sip.spec.SipSecurityConstraintMetaData;
 import org.jboss.metadata.sip.spec.SipServletSelectionMetaData;
+import org.jboss.metadata.sip.spec.SipServletsMetaData;
 import org.jboss.metadata.web.jboss.JBossWebMetaData;
 import org.jboss.metadata.web.spec.ListenerMetaData;
+import org.jboss.metadata.web.spec.SessionConfigMetaData;
 import org.mobicents.servlet.sip.annotation.ConcurrencyControlMode;
 
 /**
@@ -56,7 +57,7 @@ public class JBossConvergedSipMetaData extends JBossWebMetaData {
     private String applicationName;
     private SipServletSelectionMetaData servletSelection;
     private ProxyConfigMetaData proxyConfig;
-    private List<SipSecurityConstraintMetaData> sipSecurityContraints;
+    private List<SipSecurityConstraintMetaData> sipSecurityConstraints;
     private SessionConfigMetaData sipSessionConfig;
     private SipLoginConfigMetaData sipLoginConfig;
     private List<? extends ParamValueMetaData> sipContextParams;
@@ -239,8 +240,8 @@ public class JBossConvergedSipMetaData extends JBossWebMetaData {
         if (original != null && original.getSipLoginConfig() != null)
             setSipLoginConfig(original.getSipLoginConfig());
 
-        if (original != null && original.getSipSecurityContraints() != null)
-            setSipSecurityContraints(original.getSipSecurityContraints());
+        if (original != null && original.getSipSecurityConstraints() != null)
+            setSipSecurityConstraints(original.getSipSecurityConstraints());
 
         if (original != null && original.getContextParams() != null)
             setSipContextParams(original.getContextParams());
@@ -249,7 +250,7 @@ public class JBossConvergedSipMetaData extends JBossWebMetaData {
             setSipListeners(original.getListeners());
 
         JBossServletsMetaData soverride = null;
-        ServletsMetaData soriginal = null;
+        SipServletsMetaData soriginal = null;
         if (original != null) {
             if (original instanceof Sip11MetaData) {
                 soriginal = ((Sip11MetaData) original).getServlets();
@@ -500,10 +501,10 @@ public class JBossConvergedSipMetaData extends JBossWebMetaData {
         else if (original != null && original.getSipLoginConfig() != null)
             setSipLoginConfig(original.getSipLoginConfig());
 
-        if (override != null && override.sipSecurityContraints != null)
-            setSipSecurityContraints(override.sipSecurityContraints);
-        else if (original != null && original.getSipSecurityContraints() != null)
-            setSipSecurityContraints(original.getSipSecurityContraints());
+        if (override != null && override.sipSecurityConstraints != null)
+            setSipSecurityConstraints(override.sipSecurityConstraints);
+        else if (original != null && original.getSipSecurityConstraints() != null)
+            setSipSecurityConstraints(original.getSipSecurityConstraints());
 
         if (override != null && override.sipContextParams != null)
             setSipContextParams(override.sipContextParams);
@@ -516,7 +517,7 @@ public class JBossConvergedSipMetaData extends JBossWebMetaData {
             setSipListeners(original.getListeners());
 
         JBossServletsMetaData soverride = null;
-        ServletsMetaData soriginal = null;
+        SipServletsMetaData soriginal = null;
         if (override != null)
             soverride = override.getSipServlets();
         if (original != null) {
@@ -621,17 +622,17 @@ public class JBossConvergedSipMetaData extends JBossWebMetaData {
     }
 
     /**
-     * @param sipSecurityContraints the sipSecurityContraints to set
+     * @param sipSecurityConstraints the sipSecurityConstraints to set
      */
-    public void setSipSecurityContraints(List<SipSecurityConstraintMetaData> sipSecurityContraints) {
-        this.sipSecurityContraints = sipSecurityContraints;
+    public void setSipSecurityConstraints(List<SipSecurityConstraintMetaData> sipSecurityConstraints) {
+        this.sipSecurityConstraints = sipSecurityConstraints;
     }
 
     /**
-     * @return the sipSecurityContraints
+     * @return the sipSecurityConstraints
      */
-    public List<SipSecurityConstraintMetaData> getSipSecurityContraints() {
-        return sipSecurityContraints;
+    public List<SipSecurityConstraintMetaData> getSipSecurityConstraints() {
+        return sipSecurityConstraints;
     }
 
     /**

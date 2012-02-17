@@ -22,15 +22,12 @@
 
 package org.jboss.metadata.sip.spec;
 
-import javax.xml.bind.annotation.XmlType;
-
 import org.jboss.metadata.javaee.support.IdMetaDataImplWithOverride;
 
 /**
  * @author deruelle
  *
  */
-@XmlType(name = "condition")
 public abstract class ConditionMetaData extends IdMetaDataImplWithOverride<ConditionMetaData> {
 
 }

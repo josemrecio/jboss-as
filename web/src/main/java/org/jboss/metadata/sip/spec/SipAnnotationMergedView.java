@@ -42,7 +42,7 @@ public class SipAnnotationMergedView {
 
     public static void merge(SipMetaData merged, SipMetaData xml, SipMetaData annotation) {
         // Merge the servlets meta data
-        ServletsMetaData servletsMetaData = new ServletsMetaData();
+        SipServletsMetaData servletsMetaData = new SipServletsMetaData();
         merge(servletsMetaData, xml.getServlets(), annotation.getServlets());
         merged.setServlets(servletsMetaData);
 
@@ -79,7 +79,7 @@ public class SipAnnotationMergedView {
         mergeIn(merged, xml);
     }
 
-    private static void merge(ServletsMetaData merged, ServletsMetaData xml, ServletsMetaData annotation) {
+    private static void merge(SipServletsMetaData merged, SipServletsMetaData xml, SipServletsMetaData annotation) {
         HashMap<String, String> servletClassToName = new HashMap<String, String>();
         if (xml != null) {
             if (((IdMetaDataImpl) xml).getId() != null)
@@ -197,8 +197,8 @@ public class SipAnnotationMergedView {
             merged.setSipLoginConfig(xml.getSipLoginConfig());
 
         // Security Constraints
-        if (xml.getSipSecurityContraints() != null)
-            merged.setSipSecurityContraints(xml.getSipSecurityContraints());
+        if (xml.getSipSecurityConstraints() != null)
+            merged.setSipSecurityConstraints(xml.getSipSecurityConstraints());
 
         // Local Encodings
         if (xml.getLocalEncodings() != null)

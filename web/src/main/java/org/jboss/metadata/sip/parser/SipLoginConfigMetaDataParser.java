@@ -20,12 +20,15 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.jboss.metadata.sip.spec;
+package org.jboss.metadata.sip.parser;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import org.jboss.metadata.parser.util.MetaDataElementParser;
+import org.jboss.metadata.sip.spec.SipLoginConfigMetaData;
+import org.jboss.metadata.sip.spec.Attribute;
+import org.jboss.metadata.sip.spec.Element;
 
 /**
  * @author Remy Maucherat

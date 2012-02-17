@@ -23,7 +23,7 @@
 package org.jboss.metadata.sip.jboss;
 
 import org.jboss.metadata.javaee.support.AbstractMappedMetaData;
-import org.jboss.metadata.sip.spec.ServletsMetaData;
+import org.jboss.metadata.sip.spec.SipServletsMetaData;
 import org.jboss.metadata.web.spec.ServletMetaData;
 
 /**
@@ -35,7 +35,7 @@ import org.jboss.metadata.web.spec.ServletMetaData;
 public class JBossServletsMetaData extends AbstractMappedMetaData<JBossServletMetaData> {
     private static final long serialVersionUID = 1;
 
-    public static JBossServletsMetaData merge(JBossServletsMetaData override, ServletsMetaData original) {
+    public static JBossServletsMetaData merge(JBossServletsMetaData override, SipServletsMetaData original) {
         JBossServletsMetaData merged = new JBossServletsMetaData();
         if (override == null && original == null)
             return merged;

@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.xml.bind.annotation.XmlElement;
+
 
 import org.jboss.metadata.javaee.support.NamedMetaDataWithDescriptions;
 
@@ -94,7 +94,6 @@ public class SipResourceCollectionMetaData extends NamedMetaDataWithDescriptions
         return servletNames;
     }
 
-    @XmlElement(name = "servlet-name")
     public void setServletNames(List<String> servletNames) {
         this.servletNames = servletNames;
     }
@@ -103,7 +102,6 @@ public class SipResourceCollectionMetaData extends NamedMetaDataWithDescriptions
         return sipMethods;
     }
 
-    @XmlElement(name = "sip-method")
     public void setSipMethods(List<String> sipMethods) {
         this.sipMethods = sipMethods;
     }

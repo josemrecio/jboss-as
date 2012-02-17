@@ -22,12 +22,17 @@
 
 package org.jboss.metadata.sip.spec;
 
-import javax.xml.bind.annotation.XmlRegistry;
+import org.jboss.metadata.javaee.support.AbstractMappedMetaData;
+import org.jboss.metadata.web.spec.ServletMetaData;
 
-@XmlRegistry
-class ObjectFactory {
-    // @XmlElementDecl(name="and",substitutionHeadName="condition")
-    // JAXBElement<AndMetaData> createAnd(AndMetaData o) {...}
-    // @XmlElementDecl(name="sub",substitutionHeadName="operator")
-    // JAXBElement<Operator> createSub(Operator o) {...}
+/**
+ * @author Scott.Stark@jboss.org
+ * @version $Revision: 65943 $
+ */
+public class SipServletsMetaData extends AbstractMappedMetaData<ServletMetaData> {
+    private static final long serialVersionUID = 1;
+
+    public SipServletsMetaData() {
+        super("sip app servlets");
+    }
 }

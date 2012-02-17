@@ -22,15 +22,12 @@
 
 package org.jboss.metadata.sip.spec;
 
-import javax.xml.bind.annotation.XmlType;
-
 import org.jboss.metadata.javaee.support.IdMetaDataImpl;
 
 /**
  * @author jean.deruelle@gmail.com
  * @version $Revision$
  */
-@XmlType(name = "proxy-configType")
 public class ProxyConfigMetaData extends IdMetaDataImpl {
     private static final long serialVersionUID = 1;
     private int proxyTimeout;

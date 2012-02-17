@@ -22,7 +22,6 @@
 
 package org.jboss.metadata.sip.spec;
 
-import javax.xml.bind.annotation.XmlElement;
 
 /**
  * @author jean.deruelle@gmail.com
@@ -37,7 +36,6 @@ public class EqualMetaData extends ConditionMetaData {
     /**
      * @param var the var to set
      */
-    @XmlElement(name = "var")
     public void setVar(String var) {
         this.var = var;
     }
@@ -52,7 +50,6 @@ public class EqualMetaData extends ConditionMetaData {
     /**
      * @param value the value to set
      */
-    @XmlElement(name = "value")
     public void setValue(String value) {
         this.value = value;
     }
@@ -67,7 +64,6 @@ public class EqualMetaData extends ConditionMetaData {
     /**
      * @param ignoreCase the ignoreCase to set
      */
-    @XmlElement(name = "ignore-case")
     public void setIgnoreCase(boolean ignoreCase) {
         this.ignoreCase = ignoreCase;
     }

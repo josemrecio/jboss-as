@@ -22,8 +22,6 @@
 
 package org.jboss.metadata.sip.spec;
 
-import javax.xml.bind.annotation.XmlElement;
-
 /**
  * @author jean.deruelle@gmail.com
  *
@@ -37,7 +35,6 @@ public class ContainsMetaData extends ConditionMetaData {
     /**
      * @param var the var to set
      */
-    @XmlElement(name = "var")
     public void setVar(String var) {
         this.var = var;
     }
@@ -52,7 +49,6 @@ public class ContainsMetaData extends ConditionMetaData {
     /**
      * @param value the value to set
      */
-    @XmlElement(name = "value")
     public void setValue(String value) {
         this.value = value;
     }
@@ -67,7 +63,6 @@ public class ContainsMetaData extends ConditionMetaData {
     /**
      * @param ignoreCase the ignoreCase to set
      */
-    @XmlElement(name = "ignore-case")
     public void setIgnoreCase(boolean ignoreCase) {
         this.ignoreCase = ignoreCase;
     }
@@ -78,4 +73,13 @@ public class ContainsMetaData extends ConditionMetaData {
     public boolean isIgnoreCase() {
         return ignoreCase;
     }
+
+    /**
+     * @param varMetaData the object to copy values from
+     */
+    public void setFromVarMetaData(VarMetaData varMetaData) {
+        setVar(varMetaData.getVar());
+        setIgnoreCase(varMetaData.isIgnoreCase());
+    }
+
 }

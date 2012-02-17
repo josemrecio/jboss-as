@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.jboss.metadata.sip.spec;
+package org.jboss.metadata.sip.parser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,19 +28,29 @@ import java.util.List;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
-import org.jboss.metadata.javaee.spec.EmptyMetaData;
+import org.jboss.metadata.javaee.spec.MessageDestinationsMetaData;
 import org.jboss.metadata.javaee.spec.ParamValueMetaData;
 import org.jboss.metadata.javaee.spec.SecurityRolesMetaData;
+import org.jboss.metadata.parser.ee.MessageDestinationMetaDataParser;
 import org.jboss.metadata.parser.ee.ParamValueMetaDataParser;
 import org.jboss.metadata.parser.ee.SecurityRoleMetaDataParser;
 import org.jboss.metadata.parser.servlet.ListenerMetaDataParser;
 import org.jboss.metadata.parser.servlet.LocaleEncodingsMetaDataParser;
 import org.jboss.metadata.parser.servlet.ServletMetaDataParser;
+import org.jboss.metadata.parser.servlet.SessionConfigMetaDataParser;
 import org.jboss.metadata.parser.util.MetaDataElementParser;
 import org.jboss.metadata.web.spec.ListenerMetaData;
+import org.jboss.metadata.sip.spec.Attribute;
+import org.jboss.metadata.sip.spec.Element;
+import org.jboss.metadata.sip.spec.ServletsMetaData;
+import org.jboss.metadata.sip.spec.SipMetaData;
+import org.jboss.metadata.sip.spec.SipSecurityConstraintMetaData;
+import org.jboss.metadata.sip.spec.SipServletsMetaData;
 
 /**
  * @author Remy Maucherat
+ * @author josemrecio@gmail.com
+ *
  */
 public class SipCommonMetaDataParser extends MetaDataElementParser {
 
@@ -51,14 +61,17 @@ public class SipCommonMetaDataParser extends MetaDataElementParser {
             case APPLICATION_NAME:
                 smd.setApplicationName(getElementText(reader));
                 break;
-//            case DISPLAY_NAME:
-//                break;
-//            case DESCRIPTION:
-//                break;
+            // DescriptionGroup is parsed by SipMetaDataParser
+            //case DISPLAY_NAME:
+            //    break;
+            //case DESCRIPTION:
+            //    break;
             case DISTRIBUTABLE:
-                smd.setDistributable(new EmptyMetaData());
-                requireNoContent(reader);
-                break;
+                // TODO
+                throw unexpectedElement(reader);
+                // smd.setDistributable(new EmptyMetaData());
+                // requireNoContent(reader);
+                // break;
             case CONTEXT_PARAM:
                 List<ParamValueMetaData> contextParams = smd.getContextParams();
                 if (contextParams == null) {
@@ -75,34 +88,33 @@ public class SipCommonMetaDataParser extends MetaDataElementParser {
                 }
                 listeners.add(ListenerMetaDataParser.parse(reader));
                 break;
+            case SERVLET_SELECTION:
+                smd.setServletSelection(SipServletSelectionMetaDataParser.parse(reader));
+                break;
             case SERVLET:
-                ServletsMetaData servlets = smd.getServlets();
+                SipServletsMetaData servlets = smd.getServlets();
                 if (servlets == null) {
-                    servlets = new ServletsMetaData();
+                    servlets = new SipServletsMetaData();
                     smd.setServlets(servlets);
                 }
                 servlets.add(ServletMetaDataParser.parse(reader));
                 break;
-            case SERVLET_SELECTION:
-                smd.setServletSelection(SipServletSelectionMetaDataParser.parse(reader));
+            case PROXY_CONFIG:
+                smd.setProxyConfig(ProxyConfigMetaDataParser.parse(reader));
                 break;
             case SESSION_CONFIG:
-                // TODO
-                throw unexpectedElement(reader);
-                // if (smd.getSessionConfig() != null)
-                // throw new XMLStreamException("Multiple session-config elements detected", reader.getLocation());
-                // smd.setSessionConfig(SessionConfigMetaDataParser.parse(reader));
-                // break;
+                 if (smd.getSipSessionConfig() != null)
+                     throw new XMLStreamException("Multiple session-config elements detected", reader.getLocation());
+                 smd.setSipSessionConfig(SessionConfigMetaDataParser.parse(reader));
+                 break;
             case SECURITY_CONSTRAINT:
-                // TODO
-                throw unexpectedElement(reader);
-                // List<SecurityConstraintMetaData> securityConstraints = smd.getSecurityConstraints();
-                // if (securityConstraints == null) {
-                // securityConstraints = new ArrayList<SecurityConstraintMetaData>();
-                // smd.setSecurityConstraints(securityConstraints);
-                // }
-                // securityConstraints.add(SecurityConstraintMetaDataParser.parse(reader));
-                // break;
+                List<SipSecurityConstraintMetaData> sipSecurityConstraints = smd.getSipSecurityConstraints();
+                if (sipSecurityConstraints == null) {
+                    sipSecurityConstraints = new ArrayList<SipSecurityConstraintMetaData>();
+                    smd.setSipSecurityConstraints(sipSecurityConstraints);
+                }
+                sipSecurityConstraints.add(SipSecurityConstraintMetaDataParser.parse(reader));
+                break;
             case LOGIN_CONFIG:
                 if (smd.getSipLoginConfig() != null)
                     throw new XMLStreamException("Multiple login-config elements detected", reader.getLocation());
@@ -115,6 +127,15 @@ public class SipCommonMetaDataParser extends MetaDataElementParser {
                     smd.setSecurityRoles(securityRoles);
                 }
                 securityRoles.add(SecurityRoleMetaDataParser.parse(reader));
+                break;
+            // javaee:jndiEnvironmentRefsGroup is parsed by SipMetaDataParser
+            case MESSAGE_DESTINATION:
+                MessageDestinationsMetaData messageDestinations = smd.getMessageDestinations();
+                if (messageDestinations == null) {
+                    messageDestinations = new MessageDestinationsMetaData();
+                    smd.setMessageDestinations(messageDestinations);
+                }
+                messageDestinations.add(MessageDestinationMetaDataParser.parse(reader));
                 break;
             case LOCALE_ENCODING_MAPPING_LIST:
                 smd.setLocalEncodings(LocaleEncodingsMetaDataParser.parse(reader));
