@@ -61,6 +61,7 @@ import org.jboss.as.threads.ThreadsServices;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
 import org.jboss.dmr.Property;
+import org.jboss.msc.service.Service;
 import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceController.Mode;
@@ -140,7 +141,17 @@ class WebConnectorAdd extends AbstractAddStepHandler implements DescriptionProvi
 
         final boolean enabled = operation.hasDefined(ENABLED) ? operation.get(ENABLED).asBoolean() : true;
         ServiceBuilder<Connector> serviceBuilder = null;
-        if (operation.require(SCHEME).asString().equals("http")) {
+        if (operation.require(SCHEME).asString().equals("sip")) {
+            final SipConnectorService service = new SipConnectorService(operation.require(PROTOCOL).asString(), operation.get(SCHEME).asString());
+            serviceBuilder = context.getServiceTarget().addService(WebSubsystemServices.JBOSS_WEB_CONNECTOR.append(name), service)
+                    .addDependency(WebSubsystemServices.JBOSS_WEB, WebServer.class, service.getServer())
+                    .addDependency(SocketBinding.JBOSS_BINDING_NAME.append(bindingRef), SocketBinding.class, service.getBinding());
+            if (operation.hasDefined(EXECUTOR)) {
+                String executorRef = operation.get(EXECUTOR).asString();
+                serviceBuilder.addDependency(ThreadsServices.executorName(executorRef), Executor.class, service.getExecutor());
+            }
+        }
+        else {
             final WebConnectorService service = new WebConnectorService(operation.require(PROTOCOL).asString(), operation.get(SCHEME).asString());
             if (operation.hasDefined(SECURE)) service.setSecure(operation.get(SECURE).asBoolean());
             if (operation.hasDefined(ENABLE_LOOKUPS))
@@ -167,19 +178,6 @@ class WebConnectorAdd extends AbstractAddStepHandler implements DescriptionProvi
                 String executorRef = operation.get(EXECUTOR).asString();
                 serviceBuilder.addDependency(ThreadsServices.executorName(executorRef), Executor.class, service.getExecutor());
             }
-        }
-        else if (operation.require(SCHEME).asString().equals("sip")) {
-            final SipConnectorService service = new SipConnectorService(operation.require(PROTOCOL).asString(), operation.get(SCHEME).asString());
-            serviceBuilder = context.getServiceTarget().addService(WebSubsystemServices.JBOSS_WEB_CONNECTOR.append(name), service)
-                    .addDependency(WebSubsystemServices.JBOSS_WEB, WebServer.class, service.getServer())
-                    .addDependency(SocketBinding.JBOSS_BINDING_NAME.append(bindingRef), SocketBinding.class, service.getBinding());
-            if (operation.hasDefined(EXECUTOR)) {
-                String executorRef = operation.get(EXECUTOR).asString();
-                serviceBuilder.addDependency(ThreadsServices.executorName(executorRef), Executor.class, service.getExecutor());
-            }
-        }
-        else {
-            throw new OperationFailedException("Unknown scheme: " + operation.get(SCHEME).asString());
         }
         serviceBuilder.setInitialMode(enabled ? Mode.ACTIVE : Mode.NEVER);
         if (enabled) {
