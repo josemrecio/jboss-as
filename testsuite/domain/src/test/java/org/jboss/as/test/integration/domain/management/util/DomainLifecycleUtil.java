@@ -172,6 +172,10 @@ public class DomainLifecycleUtil {
                 cmd.add(name);
             }
 
+            // FIXME: josemrecio - should not need this once sip mgmt is integrated
+            // with AS7 mgmt infrastructure (standalone.xml etc)
+            cmd.add("-Djavax.servlet.sip.dar=file:///data/git.repo/jmr/arquillian.mobicents-dar.properties");
+
             log.info("Starting container with: " + cmd.toString());
             ProcessBuilder processBuilder = new ProcessBuilder(cmd);
             processBuilder.redirectErrorStream(true);

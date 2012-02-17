@@ -125,7 +125,7 @@ public final class ManagedDeployableContainer extends CommonDeployableContainer<
 
             // FIXME: josemrecio - should not need this once sip mgmt is integrated
             // in standalone.xml etc
-            cmd.add("-Djavax.servlet.sip.dar=file:///data/git.repo/jmr/jboss-as.AS7-3381/jboss-as/web/mobicents-dar.properties");
+            cmd.add("-Djavax.servlet.sip.dar=file:///data/git.repo/jmr/arquillian.mobicents-dar.properties");
 
             log.info("Starting container with: " + cmd.toString());
             ProcessBuilder processBuilder = new ProcessBuilder(cmd);
