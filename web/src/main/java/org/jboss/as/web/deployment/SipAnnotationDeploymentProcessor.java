@@ -68,6 +68,7 @@ import org.jboss.metadata.javaee.spec.RunAsMetaData;
 import org.jboss.metadata.javaee.spec.SecurityRoleMetaData;
 import org.jboss.metadata.javaee.spec.SecurityRolesMetaData;
 import org.jboss.metadata.sip.spec.Sip11MetaData;
+import org.jboss.metadata.sip.spec.SipMetaData;
 import org.jboss.metadata.sip.spec.SipServletsMetaData;
 import org.jboss.metadata.web.spec.AnnotationMetaData;
 import org.jboss.metadata.web.spec.AnnotationsMetaData;
@@ -129,10 +130,10 @@ public class SipAnnotationDeploymentProcessor extends AbstractDeploymentProcesso
         if (warMetaData.getSipMetaData() == null) {
             return;
         }
-        Map<String, WebMetaData> annotationsMetaData = warMetaData.getAnnotationsMetaData();
-        if (annotationsMetaData == null) {
-            annotationsMetaData = new HashMap<String, WebMetaData>();
-            warMetaData.setAnnotationsMetaData(annotationsMetaData);
+        Map<String, SipMetaData> sipAnnotationsMetaData = warMetaData.getSipAnnotationsMetaData();
+        if (sipAnnotationsMetaData == null) {
+            sipAnnotationsMetaData = new HashMap<String, SipMetaData>();
+            warMetaData.setSipAnnotationsMetaData(sipAnnotationsMetaData);
         }
         Map<ResourceRoot, Index> indexes = AnnotationIndexUtils.getAnnotationIndexes(deploymentUnit);
 
@@ -140,7 +141,7 @@ public class SipAnnotationDeploymentProcessor extends AbstractDeploymentProcesso
         for (final Entry<ResourceRoot, Index> entry : indexes.entrySet()) {
             System.err.println("doDeploy(): processing annotations from " + entry.getKey().getRootName());
             final Index jarIndex = entry.getValue();
-            annotationsMetaData.put(entry.getKey().getRootName(), processAnnotations(jarIndex));
+            sipAnnotationsMetaData.put(entry.getKey().getRootName(), processAnnotations(jarIndex));
         }
     }
 
@@ -151,9 +152,9 @@ public class SipAnnotationDeploymentProcessor extends AbstractDeploymentProcesso
      * @param classLoader the module classloader
      * @throws DeploymentUnitProcessingException
      */
-    protected WebMetaData processAnnotations(Index index)
+    protected SipMetaData processAnnotations(Index index)
     throws DeploymentUnitProcessingException {
-        Sip11MetaData metaData = new Sip11MetaData();
+        Sip11MetaData sipMetaData = new Sip11MetaData();
         System.err.println("processAnnotations()");
         // @SipListener
         final List<AnnotationInstance> sipListenerAnnotations = index.getAnnotations(sipListener);
@@ -183,7 +184,7 @@ public class SipAnnotationDeploymentProcessor extends AbstractDeploymentProcesso
                 listeners.add(listener);
             }
             System.err.println("processAnnotations(): " + listeners.size() + " sipListeners added");
-            metaData.setListeners(listeners);
+            sipMetaData.setListeners(listeners);
         }
 
         // @SipServlet
@@ -219,10 +220,10 @@ public class SipAnnotationDeploymentProcessor extends AbstractDeploymentProcesso
                         servlet.setLoadOnStartup(value.asString());
                     }
                     else if (value.name().compareTo("applicationName") == 0) {
-                        if ((metaData.getApplicationName() != null) && (metaData.getApplicationName().compareTo(value.asString()) != 0)) {
-                            throw (new DeploymentUnitProcessingException("Sip Application Name mismatch: already loaded: " + metaData.getApplicationName() + " - from annotation: " + value.asString()));
+                        if ((sipMetaData.getApplicationName() != null) && (sipMetaData.getApplicationName().compareTo(value.asString()) != 0)) {
+                            throw (new DeploymentUnitProcessingException("Sip Application Name mismatch: already loaded: " + sipMetaData.getApplicationName() + " - from annotation: " + value.asString()));
                         }
-                        metaData.setApplicationName(value.asString());
+                        sipMetaData.setApplicationName(value.asString());
                     }
                 }
 
@@ -234,7 +235,7 @@ public class SipAnnotationDeploymentProcessor extends AbstractDeploymentProcesso
                 sipServlets.add(servlet);
             }
             System.err.println("processAnnotations(): " + sipServlets.size() + " sipServlets added");
-            metaData.setSipServlets(sipServlets);
+            sipMetaData.setSipServlets(sipServlets);
         }
 
         /*
@@ -622,7 +623,7 @@ public class SipAnnotationDeploymentProcessor extends AbstractDeploymentProcesso
             }
         }
         */
-        return metaData;
+        return sipMetaData;
     }
 
     protected Descriptions getDescription(String description) {

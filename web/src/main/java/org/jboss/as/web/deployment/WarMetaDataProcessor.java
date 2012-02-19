@@ -323,10 +323,9 @@ public class WarMetaDataProcessor extends AbstractDeploymentProcessor {
 
         //FIXME: josemrecio - SIP annotations must be processed as above, otherwise they are ignored
         {
-            Map<String, WebMetaData> allAnnotationsMetaData = warMetaData.getAnnotationsMetaData();
-            WebMetaData annotatedMetaData = allAnnotationsMetaData.get("classes");
-            if (annotatedMetaData instanceof SipMetaData) {
-                SipMetaData annotatedSipMetaData = (SipMetaData) annotatedMetaData;
+            Map<String, SipMetaData> allSipAnnotationsMetaData = warMetaData.getSipAnnotationsMetaData();
+            if (allSipAnnotationsMetaData != null) {
+                SipMetaData annotatedSipMetaData = allSipAnnotationsMetaData.get("classes");
                 if (annotatedSipMetaData.getListeners() != null) {
                     for (ListenerMetaData listenerMetaData: annotatedSipMetaData.getListeners()) {
                         System.err.println("@SipListener: " + listenerMetaData.getListenerClass());
@@ -371,13 +370,12 @@ public class WarMetaDataProcessor extends AbstractDeploymentProcessor {
                 }
             }
             System.err.println("</Before clumsy augmentation>");
-            // FIXME: josemrecio - clumsy annotation augmentation
+            // FIXME: josemrecio - clumsy annotation augmentation, this should be done by SipAnnotationMergedView or similar
             {
-                Map<String, WebMetaData> allAnnotationsMetaData = warMetaData.getAnnotationsMetaData();
-                WebMetaData annotatedMetaData = allAnnotationsMetaData.get("classes");
-                if (annotatedMetaData instanceof SipMetaData) {
+                Map<String, SipMetaData> allSipAnnotationsMetaData = warMetaData.getSipAnnotationsMetaData();
+                if (allSipAnnotationsMetaData != null) {
+                    SipMetaData annotatedMetaData = allSipAnnotationsMetaData.get("classes");
                     SipMetaData annotatedSipMetaData = (SipMetaData) annotatedMetaData;
-                    // FIXME: josemrecio - why @SipListeners are already added at this point (i.e. augmentation does nothing for them) but not @SipServlets?
                     if (annotatedSipMetaData.getListeners() != null) {
                         if (sipMetaData.getListeners() == null) {
                             sipMetaData.setListeners(new ArrayList<ListenerMetaData>());

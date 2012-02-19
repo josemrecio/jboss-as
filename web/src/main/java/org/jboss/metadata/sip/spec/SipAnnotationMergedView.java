@@ -36,7 +36,7 @@ import org.jboss.metadata.web.spec.ServletMetaData;
  * Create a merged SipMetaData view from an xml + annotation views
  *
  * @author jean.deruelle@gmail.com
- *
+ * FIXME: josemrecio - update using org.jboss.metadata.merge.web.spec.AnnotationMergedViewMerger as template
  */
 public class SipAnnotationMergedView {
 

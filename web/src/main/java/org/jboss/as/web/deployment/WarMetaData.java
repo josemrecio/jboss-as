@@ -76,6 +76,15 @@ public class WarMetaData {
     private volatile Map<String, WebMetaData> annotationsMetaData;
 
     /**
+     * Sip annotations metadata.
+     */
+    private volatile Map<String, SipMetaData> sipAnnotationsMetaData;
+
+    /**
+     * FIXME: josemrecio - do we need sipFragmentsMetaData too?
+     */
+
+    /**
      * Order.
      */
     private volatile List<String> order;
@@ -188,4 +197,11 @@ public class WarMetaData {
         this.sipMetaData = sipMetaData;
     }
 
+    public Map<String, SipMetaData> getSipAnnotationsMetaData() {
+        return sipAnnotationsMetaData;
+    }
+
+    public void setSipAnnotationsMetaData(Map<String, SipMetaData> sipAnnotationsMetaData) {
+        this.sipAnnotationsMetaData = sipAnnotationsMetaData;
+    }
 }
