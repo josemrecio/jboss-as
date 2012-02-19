@@ -22,14 +22,13 @@
 
 package org.jboss.metadata.sip.spec;
 
-import org.jboss.metadata.javaee.support.AbstractMappedMetaData;
-import org.jboss.metadata.web.spec.ServletMetaData;
-
 /**
  * @author Scott.Stark@jboss.org
  * @version $Revision: 65943 $
  */
-public class SipServletsMetaData extends AbstractMappedMetaData<ServletMetaData> {
+//public class SipServletsMetaData extends AbstractMappedMetaData<ServletMetaData> {
+public class SipServletsMetaData extends ServletsMetaData {
+
     private static final long serialVersionUID = 1;
 
     public SipServletsMetaData() {

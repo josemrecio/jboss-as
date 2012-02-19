@@ -40,6 +40,7 @@ import org.jboss.as.server.services.path.AbstractPathService;
 import org.jboss.as.web.deployment.EarContextRootProcessor;
 import org.jboss.as.web.deployment.JBossWebParsingDeploymentProcessor;
 import org.jboss.as.web.deployment.ServletContainerInitializerDeploymentProcessor;
+import org.jboss.as.web.deployment.SipAnnotationDeploymentProcessor;
 import org.jboss.as.web.deployment.SipParsingDeploymentProcessor;
 import org.jboss.as.web.deployment.TldParsingDeploymentProcessor;
 import org.jboss.as.web.deployment.WarAnnotationDeploymentProcessor;
@@ -114,6 +115,7 @@ class WebSubsystemAdd extends AbstractBoottimeAddStepHandler implements Descript
                 processorTarget.addDeploymentProcessor(Phase.PARSE, Phase.PARSE_JBOSS_WEB_DEPLOYMENT, new JBossWebParsingDeploymentProcessor());
                 processorTarget.addDeploymentProcessor(Phase.PARSE, Phase.PARSE_TLD_DEPLOYMENT, new TldParsingDeploymentProcessor());
                 processorTarget.addDeploymentProcessor(Phase.PARSE, Phase.PARSE_ANNOTATION_WAR, new WarAnnotationDeploymentProcessor());
+                processorTarget.addDeploymentProcessor(Phase.PARSE, Phase.PARSE_ANNOTATION_SIP, new SipAnnotationDeploymentProcessor());
                 processorTarget.addDeploymentProcessor(Phase.PARSE, Phase.PARSE_WEB_COMPONENTS, new WebComponentProcessor());
                 processorTarget.addDeploymentProcessor(Phase.PARSE, Phase.PARSE_EAR_CONTEXT_ROOT, new EarContextRootProcessor());
                 processorTarget.addDeploymentProcessor(Phase.PARSE, Phase.PARSE_WEB_MERGE_METADATA, new WarMetaDataProcessor());

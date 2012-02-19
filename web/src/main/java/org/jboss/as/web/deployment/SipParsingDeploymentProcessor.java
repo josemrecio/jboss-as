@@ -102,6 +102,12 @@ public class SipParsingDeploymentProcessor extends AbstractDeploymentProcessor {
 
     @Override
     protected boolean canHandle(DeploymentUnit deploymentUnit) {
-        return DeploymentTypeMarker.isType(DeploymentType.WAR, deploymentUnit);
+        //return DeploymentTypeMarker.isType(DeploymentType.WAR, deploymentUnit);
+        final ResourceRoot deploymentRoot = deploymentUnit.getAttachment(Attachments.DEPLOYMENT_ROOT);
+        final VirtualFile sipXml = deploymentRoot.getRoot().getChild(SIP_XML);
+        if (DeploymentTypeMarker.isType(DeploymentType.WAR, deploymentUnit) && sipXml.exists()) {
+            return true;
+        }
+        return false;
     }
 }

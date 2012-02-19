@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source
- * Copyright 2011, Red Hat, Inc. and individual contributors
+ * Copyright 2007, Red Hat Middleware LLC, and individual contributors
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  *
@@ -19,24 +19,21 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
-package org.jboss.metadata.sip.spec;
+package org.jboss.metadata.sip.jboss;
 
 import org.jboss.metadata.javaee.support.AbstractMappedMetaData;
-import org.jboss.metadata.web.spec.ServletMetaData;
+import org.jboss.metadata.web.jboss.JBossServletMetaData;
 
 /**
+ * jboss-web/serlvet collection
+ *
  * @author Scott.Stark@jboss.org
- * @version $Revision: 65943 $
+ * @version $Revision: 66673 $
  */
-public class ServletsMetaData extends AbstractMappedMetaData<ServletMetaData> {
+public class JBossSipServletsMetaData extends AbstractMappedMetaData<JBossServletMetaData> {
     private static final long serialVersionUID = 1;
 
-    public ServletsMetaData() {
-        super("sip app servlets");
-    }
-
-    public ServletsMetaData(String key) {
-        super(key);
+    public JBossSipServletsMetaData() {
+        super("jboss sip app servlets");
     }
 }

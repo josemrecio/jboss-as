@@ -38,4 +38,10 @@ public class Sip11MetaData extends SipMetaData {
     public void setMetadataComplete(boolean metadataComplete) {
         this.metadataComplete = metadataComplete;
     }
+
+    @Override
+    public String getVersion() {
+        return "1.1";
+    }
+
 }

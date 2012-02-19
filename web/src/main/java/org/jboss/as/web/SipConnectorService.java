@@ -28,6 +28,7 @@ import java.util.concurrent.Executor;
 import org.apache.catalina.connector.Connector;
 import org.jboss.as.network.ManagedBinding;
 import org.jboss.as.network.SocketBinding;
+import org.jboss.logging.Logger;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
@@ -61,7 +62,7 @@ class SipConnectorService implements Service<Connector> {
     private final InjectedValue<WebServer> server = new InjectedValue<WebServer>();
 
     public SipConnectorService(String protocol, String scheme) {
-        System.out.println("SipConnectorService(), protocol = " + protocol + " - scheme = " + scheme);
+        Logger.getLogger("org.mobicents").info("SipConnectorService(), protocol = " + protocol + " - scheme = " + scheme);
         if (protocol != null)
             this.protocol = protocol;
         if (scheme != null)
@@ -75,7 +76,7 @@ class SipConnectorService implements Service<Connector> {
      * @throws StartException if the connector cannot be started
      */
     public synchronized void start(StartContext context) throws StartException {
-        System.out.println("SipConnectorService.start(), protocol = " + protocol + " - scheme = " + scheme);
+        Logger.getLogger("org.mobicents").info("SipConnectorService.start(), protocol = " + protocol + " - scheme = " + scheme);
         final SocketBinding binding = this.binding.getValue();
         final InetSocketAddress address = binding.getSocketAddress();
         final Executor executor = this.executor.getOptionalValue();

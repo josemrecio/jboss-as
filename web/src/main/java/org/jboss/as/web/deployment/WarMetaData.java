@@ -60,6 +60,12 @@ public class WarMetaData {
     private volatile WebMetaData sharedWebMetaData;
 
     /**
+     * Shared sip.xml metadata.
+     * FIXME: josemrecio - do we need sharedSipMetaData? If so, create SharedSipMetaDataBuilder from SharedWebMetaDataBuilder
+     */
+    //private volatile SipMetaData sharedSipMetaData;
+
+    /**
      * Web fragments metadata.
      */
     private volatile Map<String, WebFragmentMetaData> webFragmentsMetaData;

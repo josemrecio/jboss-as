@@ -38,7 +38,7 @@ import org.jboss.metadata.javaee.spec.ParamValueMetaData;
 import org.jboss.metadata.javaee.spec.SecurityRoleRefMetaData;
 import org.jboss.metadata.javaee.spec.SecurityRoleRefsMetaData;
 import org.jboss.metadata.sip.jboss.JBossConvergedSipMetaData;
-import org.jboss.metadata.sip.jboss.JBossServletsMetaData;
+import org.jboss.metadata.sip.jboss.JBossSipServletsMetaData;
 import org.jboss.metadata.sip.spec.AndMetaData;
 import org.jboss.metadata.sip.spec.ConditionMetaData;
 import org.jboss.metadata.sip.spec.ContainsMetaData;
@@ -54,7 +54,7 @@ import org.jboss.metadata.sip.spec.SipSecurityConstraintMetaData;
 import org.jboss.metadata.sip.spec.SipServletMappingMetaData;
 import org.jboss.metadata.sip.spec.SipServletSelectionMetaData;
 import org.jboss.metadata.sip.spec.SubdomainOfMetaData;
-//import org.jboss.metadata.web.jboss.JBossServletsMetaData;
+//import org.jboss.metadata.web.jboss.JBossSipServletsMetaData;
 //import org.jboss.metadata.web.jboss.JBossServletMetaData;
 import org.jboss.metadata.web.jboss.JBossWebMetaData;
 import org.jboss.metadata.web.spec.ListenerMetaData;
@@ -96,16 +96,6 @@ public class SipJBossContextConfig extends JBossContextConfig {
 
     private static transient Logger logger = Logger.getLogger(SipJBossContextConfig.class);
 
-    // @Override
-    // protected void processContextParameters() {
-    // super.processContextParameters();
-    //
-    // JBossWebMetaData metaData = metaDataLocal.get();
-    // if(metaData instanceof JBossConvergedSipMetaData && context instanceof SipStandardContext) {
-    // processSipContextParameters((JBossConvergedSipMetaData)metaData);
-    // }
-    // }
-
     /**
      * Process the context parameters defined in sip.xml. Let a user application override the sharedMetaData values.
      */
@@ -128,11 +118,7 @@ public class SipJBossContextConfig extends JBossContextConfig {
 
     @Override
     protected void processWebMetaData(JBossWebMetaData metaData) {
-        System.out.println("--\n--\n--\nprocessWebMetaData() -" + metaData.getClass().getName() + "--\n--\n--\n");
-        Exception e = new Exception();
-        e.printStackTrace();
         if (metaData instanceof JBossConvergedSipMetaData && context instanceof SipContext) {
-            System.out.println("--\n--\n--\nprocessSipMetaData()--\n--\n--\n");
             processSipMetaData((JBossConvergedSipMetaData) metaData);
             // Issue 1522 http://code.google.com/p/mobicents/issues/detail?id=1522 :
             // when converged distributable app deployed is missing distributable in one of the Deployment descriptor
@@ -157,8 +143,8 @@ public class SipJBossContextConfig extends JBossContextConfig {
          */
         // description
         DescriptionGroupMetaData descriptionGroupMetaData = convergedMetaData.getDescriptionGroup();
-        // FIXME: dirty way to detect we are in defaultWebConfig() phase
-        // if so, as there is no defaultSipConfig() equivalent, we should just return
+        // FIXME: josemrecio - dirty way to detect we are in defaultWebConfig() phase
+        // if so, as there is no defaultSipConfig() equivalent, we just return
         if (descriptionGroupMetaData == null) {
             return;
         }
@@ -189,8 +175,8 @@ public class SipJBossContextConfig extends JBossContextConfig {
             convergedContext.setProxyTimeout(convergedMetaData.getProxyConfig().getProxyTimeout());
         }
         // sip session config
-        if (convergedMetaData.getSipSessionConfig() != null) {
-            convergedContext.setSipApplicationSessionTimeout(convergedMetaData.getSipSessionConfig().getSessionTimeout());
+        if (convergedMetaData.getSessionConfig() != null) {
+            convergedContext.setSipApplicationSessionTimeout(convergedMetaData.getSessionConfig().getSessionTimeout());
         }
 
         // sip security contstraints
@@ -255,7 +241,7 @@ public class SipJBossContextConfig extends JBossContextConfig {
 
         // servlet selection
         boolean servletSelectionSet = false;
-        SipServletSelectionMetaData servletSelectionMetaData = convergedMetaData.getServletSelection();
+        SipServletSelectionMetaData servletSelectionMetaData = convergedMetaData.getSipServletSelection();
         if (servletSelectionMetaData != null) {
             String mainServlet = servletSelectionMetaData.getMainServlet();
             if (mainServlet != null && mainServlet.length() > 0) {
@@ -289,7 +275,7 @@ public class SipJBossContextConfig extends JBossContextConfig {
             }
         }
         // Sip Servlet
-        JBossServletsMetaData sipServlets = convergedMetaData.getSipServlets();
+        JBossSipServletsMetaData sipServlets = convergedMetaData.getSipServlets();
         if (sipServlets != null) {
             if (sipServlets.size() > 1 && !servletSelectionSet) {
                 throw new SipDeploymentException(

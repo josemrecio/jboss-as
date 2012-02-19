@@ -25,39 +25,9 @@ package org.jboss.metadata.sip.spec;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import org.jboss.metadata.javaee.spec.AnnotatedEJBReferencesMetaData;
-import org.jboss.metadata.javaee.spec.DataSourceMetaData;
-import org.jboss.metadata.javaee.spec.DataSourcesMetaData;
-import org.jboss.metadata.javaee.spec.EJBLocalReferenceMetaData;
-import org.jboss.metadata.javaee.spec.EJBLocalReferencesMetaData;
-import org.jboss.metadata.javaee.spec.EJBReferenceMetaData;
-import org.jboss.metadata.javaee.spec.EJBReferencesMetaData;
-import org.jboss.metadata.javaee.spec.EmptyMetaData;
 import org.jboss.metadata.javaee.spec.Environment;
-import org.jboss.metadata.javaee.spec.EnvironmentEntriesMetaData;
-import org.jboss.metadata.javaee.spec.EnvironmentEntryMetaData;
-import org.jboss.metadata.javaee.spec.EnvironmentRefsGroupMetaData;
-import org.jboss.metadata.javaee.spec.LifecycleCallbacksMetaData;
-import org.jboss.metadata.javaee.spec.MessageDestinationReferenceMetaData;
-import org.jboss.metadata.javaee.spec.MessageDestinationReferencesMetaData;
-import org.jboss.metadata.javaee.spec.MessageDestinationsMetaData;
-import org.jboss.metadata.javaee.spec.ParamValueMetaData;
-import org.jboss.metadata.javaee.spec.PersistenceContextReferenceMetaData;
-import org.jboss.metadata.javaee.spec.PersistenceContextReferencesMetaData;
-import org.jboss.metadata.javaee.spec.PersistenceUnitReferenceMetaData;
-import org.jboss.metadata.javaee.spec.PersistenceUnitReferencesMetaData;
-import org.jboss.metadata.javaee.spec.ResourceEnvironmentReferenceMetaData;
-import org.jboss.metadata.javaee.spec.ResourceEnvironmentReferencesMetaData;
-import org.jboss.metadata.javaee.spec.ResourceReferenceMetaData;
-import org.jboss.metadata.javaee.spec.ResourceReferencesMetaData;
-import org.jboss.metadata.javaee.spec.SecurityRolesMetaData;
-import org.jboss.metadata.javaee.spec.ServiceReferenceMetaData;
-import org.jboss.metadata.javaee.spec.ServiceReferencesMetaData;
-import org.jboss.metadata.javaee.support.AbstractMappedMetaData;
 import org.jboss.metadata.javaee.support.IdMetaDataImplWithDescriptionGroup;
-import org.jboss.metadata.web.spec.ListenerMetaData;
-import org.jboss.metadata.web.spec.LocaleEncodingsMetaData;
-import org.jboss.metadata.web.spec.SessionConfigMetaData;
+import org.jboss.metadata.web.spec.WebMetaData;
 import org.mobicents.servlet.sip.annotation.ConcurrencyControlMode;
 
 /**
@@ -65,30 +35,31 @@ import org.mobicents.servlet.sip.annotation.ConcurrencyControlMode;
  *
  * @author jean.deruelle@gmail.com
  */
-public abstract class SipMetaData extends IdMetaDataImplWithDescriptionGroup implements Environment {
+//public abstract class SipMetaData extends IdMetaDataImplWithDescriptionGroup implements Environment {
+public abstract class SipMetaData extends WebMetaData implements Environment {
     private static final long serialVersionUID = 1;
 
-    private String dtdPublicId;
-    private String dtdSystemId;
-    private String version;
+//    private String dtdPublicId;
+//    private String dtdSystemId;
+//    private String version;
     private String applicationName;
-    private EmptyMetaData distributable;
-    private List<ListenerMetaData> listeners;
-    private List<ParamValueMetaData> contextParams;
+//    private EmptyMetaData distributable;
+//    private List<ListenerMetaData> listeners;
+//    private List<ParamValueMetaData> contextParams;
     private SipServletSelectionMetaData servletSelection;
     private ProxyConfigMetaData proxyConfig;
-    private SipServletsMetaData servlets;
-    private SessionConfigMetaData sipSessionConfig;
+    private SipServletsMetaData sipServlets;
+//    private SessionConfigMetaData sessionConfig;
     private List<SipSecurityConstraintMetaData> sipSecurityConstraints;
     private SipLoginConfigMetaData sipLoginConfig;
-    private SecurityRolesMetaData securityRoles;
-    private LocaleEncodingsMetaData localEncodings;
+//    private SecurityRolesMetaData securityRoles;
+//    private LocaleEncodingsMetaData localEncodings;
 
-    /** The environment */
-    private EnvironmentRefsGroupMetaData jndiEnvironmentRefsGroup;
+//    /** The environment */
+//    private EnvironmentRefsGroupMetaData jndiEnvironmentRefsGroup;
 
-    /** The message destinations */
-    private MessageDestinationsMetaData messageDestinations;
+//    /** The message destinations */
+//    private MessageDestinationsMetaData messageDestinations;
 
     private Method sipApplicationKeyMethod;
     private ConcurrencyControlMode concurrencyControlMode;
@@ -100,89 +71,89 @@ public abstract class SipMetaData extends IdMetaDataImplWithDescriptionGroup imp
      * @param publicId
      * @param systemId
      */
-    public void setDTD(String root, String publicId, String systemId) {
-        this.dtdPublicId = publicId;
-        this.dtdSystemId = systemId;
-    }
+//    public void setDTD(String root, String publicId, String systemId) {
+//        this.dtdPublicId = publicId;
+//        this.dtdSystemId = systemId;
+//    }
 
     /**
      * Get the DTD public id if one was seen
      *
      * @return the value of the web.xml dtd public id
      */
-    public String getDtdPublicId() {
-        return dtdPublicId;
-    }
+//    public String getDtdPublicId() {
+//        return dtdPublicId;
+//    }
 
     /**
      * Get the DTD system id if one was seen
      *
      * @return the value of the web.xml dtd system id
      */
-    public String getDtdSystemId() {
-        return dtdSystemId;
-    }
+//    public String getDtdSystemId() {
+//        return dtdSystemId;
+//    }
 
-    public String getVersion() {
-        return version;
-    }
+//    public String getVersion() {
+//        return version;
+//    }
 
-    public void setVersion(String version) {
-        this.version = version;
-    }
+//    public void setVersion(String version) {
+//        this.version = version;
+//    }
 
     /**
      * Is this a servlet 2.3 version application
      *
      * @return true if this is a javaee 2.3 version application
      */
-    public boolean is10() {
-        return dtdPublicId != null && dtdPublicId.equals("-//Java Community Process//DTD SIP Application 1.0//EN");
-    }
+//    public boolean is10() {
+//        return dtdPublicId != null && dtdPublicId.equals("-//Java Community Process//DTD SIP Application 1.0//EN");
+//    }
 
-    public boolean is11() {
-        return version != null && version.equals("1.1");
-    }
+//    public boolean is11() {
+//        return version != null && version.equals("1.1");
+//    }
 
-    public EmptyMetaData getDistributable() {
-        return distributable;
-    }
+//    public EmptyMetaData getDistributable() {
+//        return distributable;
+//    }
 
-    public void setDistributable(EmptyMetaData distributable) {
-        this.distributable = distributable;
-    }
+//    public void setDistributable(EmptyMetaData distributable) {
+//        this.distributable = distributable;
+//    }
 
-    public SessionConfigMetaData getSipSessionConfig() {
-        return sipSessionConfig;
-    }
+//    public SessionConfigMetaData getSipSessionConfig() {
+//        return sipSessionConfig;
+//    }
 
-    public void setSipSessionConfig(SessionConfigMetaData sessionConfig) {
-        this.sipSessionConfig = sessionConfig;
-    }
+//    public void setSessionConfig(SessionConfigMetaData sessionConfig) {
+//        this.sessionConfig = sessionConfig;
+//    }
 
-    public List<ParamValueMetaData> getContextParams() {
-        return contextParams;
-    }
+//    public List<ParamValueMetaData> getContextParams() {
+//        return contextParams;
+//    }
 
-    public void setContextParams(List<ParamValueMetaData> params) {
-        this.contextParams = params;
-    }
+//    public void setContextParams(List<ParamValueMetaData> params) {
+//        this.contextParams = params;
+//    }
 
-    public List<ListenerMetaData> getListeners() {
-        return listeners;
-    }
+//    public List<ListenerMetaData> getListeners() {
+//        return listeners;
+//    }
 
-    public void setListeners(List<ListenerMetaData> listeners) {
-        this.listeners = listeners;
-    }
+//    public void setListeners(List<ListenerMetaData> listeners) {
+//        this.listeners = listeners;
+//    }
 
-    public LocaleEncodingsMetaData getLocalEncodings() {
-        return localEncodings;
-    }
+//    public LocaleEncodingsMetaData getLocalEncodings() {
+//        return localEncodings;
+//    }
 
-    public void setLocalEncodings(LocaleEncodingsMetaData localEncodings) {
-        this.localEncodings = localEncodings;
-    }
+//    public void setLocalEncodings(LocaleEncodingsMetaData localEncodings) {
+//        this.localEncodings = localEncodings;
+//    }
 
     public SipLoginConfigMetaData getSipLoginConfig() {
         return sipLoginConfig;
@@ -200,20 +171,20 @@ public abstract class SipMetaData extends IdMetaDataImplWithDescriptionGroup imp
         this.sipSecurityConstraints = sipSecurityConstraints;
     }
 
-    public SecurityRolesMetaData getSecurityRoles() {
-        return securityRoles;
+//    public SecurityRolesMetaData getSecurityRoles() {
+//        return securityRoles;
+//    }
+
+//    public void setSecurityRoles(SecurityRolesMetaData securityRoles) {
+//        this.securityRoles = securityRoles;
+//    }
+
+    public SipServletsMetaData getSipServlets() {
+        return sipServlets;
     }
 
-    public void setSecurityRoles(SecurityRolesMetaData securityRoles) {
-        this.securityRoles = securityRoles;
-    }
-
-    public SipServletsMetaData getServlets() {
-        return servlets;
-    }
-
-    public void setServlets(SipServletsMetaData sipServlets) {
-        this.servlets = sipServlets;
+    public void setSipServlets(SipServletsMetaData sipServlets) {
+        this.sipServlets = sipServlets;
     }
 
     /**
@@ -221,9 +192,9 @@ public abstract class SipMetaData extends IdMetaDataImplWithDescriptionGroup imp
      *
      * @return the jndiEnvironmentRefsGroup.
      */
-    public EnvironmentRefsGroupMetaData getJndiEnvironmentRefsGroup() {
-        return jndiEnvironmentRefsGroup;
-    }
+//    public EnvironmentRefsGroupMetaData getJndiEnvironmentRefsGroup() {
+//        return jndiEnvironmentRefsGroup;
+//    }
 
     /**
      * Set the jndiEnvironmentRefsGroup.
@@ -231,134 +202,134 @@ public abstract class SipMetaData extends IdMetaDataImplWithDescriptionGroup imp
      * @param jndiEnvironmentRefsGroup the jndiEnvironmentRefsGroup.
      * @throws IllegalArgumentException for a null jndiEnvironmentRefsGroup
      */
-    public void setJndiEnvironmentRefsGroup(EnvironmentRefsGroupMetaData env) {
-        if (env == null)
-            throw new IllegalArgumentException("Null jndiEnvironmentRefsGroup");
-        if (jndiEnvironmentRefsGroup != null)
-            // FIXME: josemrecio - merge
-            //jndiEnvironmentRefsGroup.merge(env, null, "jboss-web.xml", "sip.xml", false);
-            throw new IllegalArgumentException("FIXME merge - jndiEnvironmentRefsGroup not null, merge not supported");
-        else
-            this.jndiEnvironmentRefsGroup = env;
-    }
+//    public void setJndiEnvironmentRefsGroup(EnvironmentRefsGroupMetaData env) {
+//        if (env == null)
+//            throw new IllegalArgumentException("Null jndiEnvironmentRefsGroup");
+//        if (jndiEnvironmentRefsGroup != null)
+//            // FIXME: josemrecio - merge
+//            //jndiEnvironmentRefsGroup.merge(env, null, "jboss-web.xml", "sip.xml", false);
+//            throw new IllegalArgumentException("FIXME merge - jndiEnvironmentRefsGroup not null, merge not supported");
+//        else
+//            this.jndiEnvironmentRefsGroup = env;
+//    }
 
-    public EJBLocalReferenceMetaData getEjbLocalReferenceByName(String name) {
-        return AbstractMappedMetaData.getByName(name, getEjbLocalReferences());
-    }
+//    public EJBLocalReferenceMetaData getEjbLocalReferenceByName(String name) {
+//        return AbstractMappedMetaData.getByName(name, getEjbLocalReferences());
+//    }
 
-    public EJBLocalReferencesMetaData getEjbLocalReferences() {
-        if (jndiEnvironmentRefsGroup != null)
-            return jndiEnvironmentRefsGroup.getEjbLocalReferences();
-        return null;
-    }
+//    public EJBLocalReferencesMetaData getEjbLocalReferences() {
+//        if (jndiEnvironmentRefsGroup != null)
+//            return jndiEnvironmentRefsGroup.getEjbLocalReferences();
+//        return null;
+//    }
 
-    public EJBReferenceMetaData getEjbReferenceByName(String name) {
-        return AbstractMappedMetaData.getByName(name, getEjbReferences());
-    }
+//    public EJBReferenceMetaData getEjbReferenceByName(String name) {
+//        return AbstractMappedMetaData.getByName(name, getEjbReferences());
+//    }
 
-    public EJBReferencesMetaData getEjbReferences() {
-        if (jndiEnvironmentRefsGroup != null)
-            return jndiEnvironmentRefsGroup.getEjbReferences();
-        return null;
-    }
+//    public EJBReferencesMetaData getEjbReferences() {
+//        if (jndiEnvironmentRefsGroup != null)
+//            return jndiEnvironmentRefsGroup.getEjbReferences();
+//        return null;
+//    }
 
-    // TODO: josemrecio - annotation
-    public AnnotatedEJBReferencesMetaData getAnnotatedEjbReferences() {
-        AnnotatedEJBReferencesMetaData refs = null;
-        if (jndiEnvironmentRefsGroup != null)
-            refs = jndiEnvironmentRefsGroup.getAnnotatedEjbReferences();
-        return refs;
-    }
+//    // TODO: josemrecio - annotation
+//    public AnnotatedEJBReferencesMetaData getAnnotatedEjbReferences() {
+//        AnnotatedEJBReferencesMetaData refs = null;
+//        if (jndiEnvironmentRefsGroup != null)
+//            refs = jndiEnvironmentRefsGroup.getAnnotatedEjbReferences();
+//        return refs;
+//    }
 
-    public EnvironmentEntriesMetaData getEnvironmentEntries() {
-        if (jndiEnvironmentRefsGroup != null)
-            return jndiEnvironmentRefsGroup.getEnvironmentEntries();
-        return null;
-    }
+//    public EnvironmentEntriesMetaData getEnvironmentEntries() {
+//        if (jndiEnvironmentRefsGroup != null)
+//            return jndiEnvironmentRefsGroup.getEnvironmentEntries();
+//        return null;
+//    }
 
-    public EnvironmentEntryMetaData getEnvironmentEntryByName(String name) {
-        return AbstractMappedMetaData.getByName(name, getEnvironmentEntries());
-    }
+//    public EnvironmentEntryMetaData getEnvironmentEntryByName(String name) {
+//        return AbstractMappedMetaData.getByName(name, getEnvironmentEntries());
+//    }
 
-    public MessageDestinationReferenceMetaData getMessageDestinationReferenceByName(String name) {
-        return AbstractMappedMetaData.getByName(name, getMessageDestinationReferences());
-    }
+//    public MessageDestinationReferenceMetaData getMessageDestinationReferenceByName(String name) {
+//        return AbstractMappedMetaData.getByName(name, getMessageDestinationReferences());
+//    }
 
-    public MessageDestinationReferencesMetaData getMessageDestinationReferences() {
-        if (jndiEnvironmentRefsGroup != null)
-            return jndiEnvironmentRefsGroup.getMessageDestinationReferences();
-        return null;
-    }
+//    public MessageDestinationReferencesMetaData getMessageDestinationReferences() {
+//        if (jndiEnvironmentRefsGroup != null)
+//            return jndiEnvironmentRefsGroup.getMessageDestinationReferences();
+//        return null;
+//    }
 
-    public PersistenceContextReferenceMetaData getPersistenceContextReferenceByName(String name) {
-        return AbstractMappedMetaData.getByName(name, getPersistenceContextRefs());
-    }
+//    public PersistenceContextReferenceMetaData getPersistenceContextReferenceByName(String name) {
+//        return AbstractMappedMetaData.getByName(name, getPersistenceContextRefs());
+//    }
 
-    public PersistenceContextReferencesMetaData getPersistenceContextRefs() {
-        if (jndiEnvironmentRefsGroup != null)
-            return jndiEnvironmentRefsGroup.getPersistenceContextRefs();
-        return null;
-    }
+//    public PersistenceContextReferencesMetaData getPersistenceContextRefs() {
+//        if (jndiEnvironmentRefsGroup != null)
+//            return jndiEnvironmentRefsGroup.getPersistenceContextRefs();
+//        return null;
+//    }
 
-    public PersistenceUnitReferenceMetaData getPersistenceUnitReferenceByName(String name) {
-        return AbstractMappedMetaData.getByName(name, getPersistenceUnitRefs());
-    }
+//    public PersistenceUnitReferenceMetaData getPersistenceUnitReferenceByName(String name) {
+//        return AbstractMappedMetaData.getByName(name, getPersistenceUnitRefs());
+//    }
 
-    public PersistenceUnitReferencesMetaData getPersistenceUnitRefs() {
-        if (jndiEnvironmentRefsGroup != null)
-            return jndiEnvironmentRefsGroup.getPersistenceUnitRefs();
-        return null;
-    }
+//    public PersistenceUnitReferencesMetaData getPersistenceUnitRefs() {
+//        if (jndiEnvironmentRefsGroup != null)
+//            return jndiEnvironmentRefsGroup.getPersistenceUnitRefs();
+//        return null;
+//    }
 
-    public LifecycleCallbacksMetaData getPostConstructs() {
-        if (jndiEnvironmentRefsGroup != null)
-            return jndiEnvironmentRefsGroup.getPostConstructs();
-        return null;
-    }
+//    public LifecycleCallbacksMetaData getPostConstructs() {
+//        if (jndiEnvironmentRefsGroup != null)
+//            return jndiEnvironmentRefsGroup.getPostConstructs();
+//        return null;
+//    }
 
-    public LifecycleCallbacksMetaData getPreDestroys() {
-        if (jndiEnvironmentRefsGroup != null)
-            return jndiEnvironmentRefsGroup.getPreDestroys();
-        return null;
-    }
+//    public LifecycleCallbacksMetaData getPreDestroys() {
+//        if (jndiEnvironmentRefsGroup != null)
+//            return jndiEnvironmentRefsGroup.getPreDestroys();
+//        return null;
+//    }
 
-    public ResourceEnvironmentReferenceMetaData getResourceEnvironmentReferenceByName(String name) {
-        return AbstractMappedMetaData.getByName(name, getResourceEnvironmentReferences());
-    }
+//    public ResourceEnvironmentReferenceMetaData getResourceEnvironmentReferenceByName(String name) {
+//        return AbstractMappedMetaData.getByName(name, getResourceEnvironmentReferences());
+//    }
 
-    public ResourceEnvironmentReferencesMetaData getResourceEnvironmentReferences() {
-        if (jndiEnvironmentRefsGroup != null)
-            return jndiEnvironmentRefsGroup.getResourceEnvironmentReferences();
-        return null;
-    }
+//    public ResourceEnvironmentReferencesMetaData getResourceEnvironmentReferences() {
+//        if (jndiEnvironmentRefsGroup != null)
+//            return jndiEnvironmentRefsGroup.getResourceEnvironmentReferences();
+//        return null;
+//    }
 
-    public ResourceReferenceMetaData getResourceReferenceByName(String name) {
-        return AbstractMappedMetaData.getByName(name, getResourceReferences());
-    }
+//    public ResourceReferenceMetaData getResourceReferenceByName(String name) {
+//        return AbstractMappedMetaData.getByName(name, getResourceReferences());
+//    }
 
-    public ResourceReferencesMetaData getResourceReferences() {
-        if (jndiEnvironmentRefsGroup != null)
-            return jndiEnvironmentRefsGroup.getResourceReferences();
-        return null;
-    }
+//    public ResourceReferencesMetaData getResourceReferences() {
+//        if (jndiEnvironmentRefsGroup != null)
+//            return jndiEnvironmentRefsGroup.getResourceReferences();
+//        return null;
+//    }
 
-    public ServiceReferenceMetaData getServiceReferenceByName(String name) {
-        return AbstractMappedMetaData.getByName(name, getServiceReferences());
-    }
+//    public ServiceReferenceMetaData getServiceReferenceByName(String name) {
+//        return AbstractMappedMetaData.getByName(name, getServiceReferences());
+//    }
 
-    public ServiceReferencesMetaData getServiceReferences() {
-        if (jndiEnvironmentRefsGroup != null)
-            return jndiEnvironmentRefsGroup.getServiceReferences();
-        return null;
-    }
+//    public ServiceReferencesMetaData getServiceReferences() {
+//        if (jndiEnvironmentRefsGroup != null)
+//            return jndiEnvironmentRefsGroup.getServiceReferences();
+//        return null;
+//    }
 
-    public MessageDestinationsMetaData getMessageDestinations() {
-        return messageDestinations;
-    }
+//    public MessageDestinationsMetaData getMessageDestinations() {
+//        return messageDestinations;
+//    }
 
-    public void setMessageDestinations(MessageDestinationsMetaData messageDestinations) {
-        this.messageDestinations = messageDestinations;
-    }
+//    public void setMessageDestinations(MessageDestinationsMetaData messageDestinations) {
+//        this.messageDestinations = messageDestinations;
+//    }
 
     /**
      * @param servletSelection the servletSelection to set
@@ -424,14 +395,14 @@ public abstract class SipMetaData extends IdMetaDataImplWithDescriptionGroup imp
         this.concurrencyControlMode = mode;
     }
 
-    public DataSourceMetaData getDataSourceByName(String name) {
-        return AbstractMappedMetaData.getByName(name, getDataSources());
-    }
+//    public DataSourceMetaData getDataSourceByName(String name) {
+//        return AbstractMappedMetaData.getByName(name, getDataSources());
+//    }
 
-    public DataSourcesMetaData getDataSources() {
-        if (jndiEnvironmentRefsGroup != null)
-            return jndiEnvironmentRefsGroup.getDataSources();
-        return null;
-    }
+//    public DataSourcesMetaData getDataSources() {
+//        if (jndiEnvironmentRefsGroup != null)
+//            return jndiEnvironmentRefsGroup.getDataSources();
+//        return null;
+//    }
 
 }

@@ -37,11 +37,8 @@ import javax.servlet.annotation.ServletSecurity.EmptyRoleSemantic;
 import javax.servlet.annotation.ServletSecurity.TransportGuarantee;
 
 import org.apache.catalina.Container;
-import org.apache.catalina.ContainerListener;
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleEvent;
-import org.apache.catalina.LifecycleListener;
-import org.apache.catalina.Valve;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.deploy.Multipart;
@@ -75,12 +72,11 @@ import org.jboss.metadata.javaee.spec.SecurityRoleRefsMetaData;
 import org.jboss.metadata.javaee.spec.SecurityRolesMetaData;
 import org.jboss.metadata.merge.web.jboss.JBossWebMetaDataMerger;
 import org.jboss.metadata.sip.jboss.JBossConvergedSipMetaData;
-import org.jboss.metadata.web.jboss.ContainerListenerMetaData;
+import org.jboss.metadata.sip.merge.JBossSipMetaDataMerger;
 import org.jboss.metadata.web.jboss.JBossAnnotationsMetaData;
 import org.jboss.metadata.web.jboss.JBossServletMetaData;
 import org.jboss.metadata.web.jboss.JBossServletsMetaData;
 import org.jboss.metadata.web.jboss.JBossWebMetaData;
-import org.jboss.metadata.web.jboss.ValveMetaData;
 import org.jboss.metadata.web.spec.AnnotationMetaData;
 import org.jboss.metadata.web.spec.AttributeMetaData;
 import org.jboss.metadata.web.spec.AuthConstraintMetaData;
@@ -167,10 +163,14 @@ public class JBossContextConfig extends ContextConfig {
     @Override
     protected void applicationWebConfig() {
         final WarMetaData warMetaData = deploymentUnitContext.getAttachment(WarMetaData.ATTACHMENT_KEY);
+        if (context instanceof SipStandardContext) {
+            JBossSipMetaDataMerger.merge((JBossConvergedSipMetaData)warMetaData.getMergedJBossWebMetaData(), null, warMetaData.getSipMetaData());
+        }
         processJBossWebMetaData(warMetaData.getMergedJBossWebMetaData());
         processWebMetaData(warMetaData.getMergedJBossWebMetaData());
     }
 
+    static final String WEB_XML = "WEB-INF/web.xml";
     @Override
     protected void defaultWebConfig() {
         // JBossWebMetaData sharedJBossWebMetaData = new JBossWebMetaData();

@@ -52,10 +52,14 @@ import org.jboss.metadata.merge.javaee.spec.SecurityRolesMetaDataMerger;
 import org.jboss.metadata.merge.web.jboss.JBossWebMetaDataMerger;
 import org.jboss.metadata.merge.web.spec.WebCommonMetaDataMerger;
 import org.jboss.metadata.sip.jboss.JBossConvergedSipMetaData;
+import org.jboss.metadata.sip.merge.JBossSipMetaDataMerger;
 import org.jboss.metadata.sip.spec.SipMetaData;
+import org.jboss.metadata.sip.spec.SipServletsMetaData;
 import org.jboss.metadata.web.jboss.JBossWebMetaData;
 import org.jboss.metadata.web.spec.AbsoluteOrderingMetaData;
+import org.jboss.metadata.web.spec.ListenerMetaData;
 import org.jboss.metadata.web.spec.OrderingElementMetaData;
+import org.jboss.metadata.web.spec.ServletMetaData;
 import org.jboss.metadata.web.spec.Web25MetaData;
 import org.jboss.metadata.web.spec.Web30MetaData;
 import org.jboss.metadata.web.spec.WebCommonMetaData;
@@ -317,6 +321,25 @@ public class WarMetaDataProcessor extends AbstractDeploymentProcessor {
         }
         WebCommonMetaDataMerger.augment(specMetaData, mergedFragmentMetaData, null, true);
 
+        //FIXME: josemrecio - SIP annotations must be processed as above, otherwise they are ignored
+        {
+            Map<String, WebMetaData> allAnnotationsMetaData = warMetaData.getAnnotationsMetaData();
+            WebMetaData annotatedMetaData = allAnnotationsMetaData.get("classes");
+            if (annotatedMetaData instanceof SipMetaData) {
+                SipMetaData annotatedSipMetaData = (SipMetaData) annotatedMetaData;
+                if (annotatedSipMetaData.getListeners() != null) {
+                    for (ListenerMetaData listenerMetaData: annotatedSipMetaData.getListeners()) {
+                        System.err.println("@SipListener: " + listenerMetaData.getListenerClass());
+                    }
+                }
+                if (annotatedSipMetaData.getSipServlets() != null) {
+                    for (ServletMetaData sipServletMetaData: annotatedSipMetaData.getSipServlets()) {
+                        System.err.println("@SipServlet: " + sipServletMetaData.getServletClass());
+                    }
+                }
+            }
+        }
+
         // Override with meta data (JBossWebMetaData)
         // Create a merged view
         //JBossWebMetaData mergedMetaData = new JBossWebMetaData();
@@ -330,10 +353,85 @@ public class WarMetaDataProcessor extends AbstractDeploymentProcessor {
         JBossWebMetaData metaData = warMetaData.getJbossWebMetaData();
         JBossWebMetaDataMerger.merge(mergedMetaData, metaData, specMetaData);
         // FIXME: Incorporate any ear level overrides
+
+        // merging sipMetaData and clumsy sip annotation processing
         if (mergedMetaData instanceof JBossConvergedSipMetaData) {
             SipMetaData sipMetaData = warMetaData.getSipMetaData();
-            ((JBossConvergedSipMetaData)mergedMetaData).merge(null, sipMetaData);
-            //SipMetaDataMerger.merge(mergedMetaData, metaData, specMetaData);
+            System.err.println("<Before clumsy augmentation>");
+            if (sipMetaData.getListeners() != null) {
+                System.err.println("Listeners: " + sipMetaData.getListeners().size());
+                for (ListenerMetaData check : sipMetaData.getListeners()) {
+                    System.err.println("Listener: " + check.getListenerClass());
+                }
+            }
+            if (sipMetaData.getSipServlets() != null) {
+                System.err.println("SipServlets: " + sipMetaData.getSipServlets().size());
+                for (ServletMetaData check: sipMetaData.getSipServlets()) {
+                    System.err.println("SipServlet: " + check.getServletClass());
+                }
+            }
+            System.err.println("</Before clumsy augmentation>");
+            // FIXME: josemrecio - clumsy annotation augmentation
+            {
+                Map<String, WebMetaData> allAnnotationsMetaData = warMetaData.getAnnotationsMetaData();
+                WebMetaData annotatedMetaData = allAnnotationsMetaData.get("classes");
+                if (annotatedMetaData instanceof SipMetaData) {
+                    SipMetaData annotatedSipMetaData = (SipMetaData) annotatedMetaData;
+                    // FIXME: josemrecio - why @SipListeners are already added at this point (i.e. augmentation does nothing for them) but not @SipServlets?
+                    if (annotatedSipMetaData.getListeners() != null) {
+                        if (sipMetaData.getListeners() == null) {
+                            sipMetaData.setListeners(new ArrayList<ListenerMetaData>());
+                        }
+                        for (ListenerMetaData listenerMetaData: annotatedSipMetaData.getListeners()) {
+                            boolean found = false;
+                            for (ListenerMetaData check : sipMetaData.getListeners()) {
+                                if (check.getListenerClass().equals(listenerMetaData.getListenerClass())) {
+                                    System.err.println("@SipListener already present: " + listenerMetaData.getListenerClass());
+                                    found = true;
+                                }
+                            }
+                            if (!found) {
+                                System.err.println("Added @SipListener: " + listenerMetaData.getListenerClass());
+                                sipMetaData.getListeners().add(listenerMetaData);
+                            }
+                        }
+                    }
+                    if (annotatedSipMetaData.getSipServlets() != null) {
+                        if (sipMetaData.getSipServlets() == null) {
+                            sipMetaData.setSipServlets(new SipServletsMetaData());
+                        }
+                        for (ServletMetaData servletMetaData: annotatedSipMetaData.getSipServlets()) {
+                            boolean found = false;
+                            for (ServletMetaData check : sipMetaData.getSipServlets()) {
+                                if (check.getServletClass().equals(servletMetaData.getServletClass())) {
+                                    System.err.println("@SipServlet already present: " + servletMetaData.getServletClass());
+                                    found = true;
+                                }
+                            }
+                            if (!found) {
+                                System.err.println("Added @SipServlet: " + servletMetaData.getServletClass());
+                                sipMetaData.getSipServlets().add(servletMetaData);
+                            }
+                        }
+                    }
+
+                }
+            }
+            System.err.println("<After clumsy augmentation>");
+            if (sipMetaData.getListeners() != null) {
+                System.err.println("Listeners: " + sipMetaData.getListeners().size());
+                for (ListenerMetaData check : sipMetaData.getListeners()) {
+                    System.err.println("Listener: " + check.getListenerClass());
+                }
+            }
+            if (sipMetaData.getSipServlets() != null) {
+                System.err.println("SipServlets: " + sipMetaData.getSipServlets().size());
+                for (ServletMetaData check: sipMetaData.getSipServlets()) {
+                    System.err.println("SipServlet: " + check.getName() + " - class: " + check.getServletClass());
+                }
+            }
+            System.err.println("</After clumsy augmentation>");
+            JBossSipMetaDataMerger.merge((JBossConvergedSipMetaData)mergedMetaData, null, sipMetaData);
         }
 
         warMetaData.setMergedJBossWebMetaData(mergedMetaData);

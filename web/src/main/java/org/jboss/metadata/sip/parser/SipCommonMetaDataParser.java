@@ -92,10 +92,10 @@ public class SipCommonMetaDataParser extends MetaDataElementParser {
                 smd.setServletSelection(SipServletSelectionMetaDataParser.parse(reader));
                 break;
             case SERVLET:
-                SipServletsMetaData servlets = smd.getServlets();
+                SipServletsMetaData servlets = smd.getSipServlets();
                 if (servlets == null) {
                     servlets = new SipServletsMetaData();
-                    smd.setServlets(servlets);
+                    smd.setSipServlets(servlets);
                 }
                 servlets.add(ServletMetaDataParser.parse(reader));
                 break;
@@ -103,9 +103,9 @@ public class SipCommonMetaDataParser extends MetaDataElementParser {
                 smd.setProxyConfig(ProxyConfigMetaDataParser.parse(reader));
                 break;
             case SESSION_CONFIG:
-                 if (smd.getSipSessionConfig() != null)
+                 if (smd.getSessionConfig() != null)
                      throw new XMLStreamException("Multiple session-config elements detected", reader.getLocation());
-                 smd.setSipSessionConfig(SessionConfigMetaDataParser.parse(reader));
+                 smd.setSessionConfig(SessionConfigMetaDataParser.parse(reader));
                  break;
             case SECURITY_CONSTRAINT:
                 List<SipSecurityConstraintMetaData> sipSecurityConstraints = smd.getSipSecurityConstraints();

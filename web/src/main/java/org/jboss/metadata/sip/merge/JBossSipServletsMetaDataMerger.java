@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source
- * Copyright 2011, Red Hat, Inc. and individual contributors
+ * Copyright 2007, Red Hat Middleware LLC, and individual contributors
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  *
@@ -19,37 +19,37 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+package org.jboss.metadata.sip.merge;
 
-package org.jboss.metadata.sip.jboss;
-
-import org.jboss.metadata.javaee.support.AbstractMappedMetaData;
+import org.jboss.metadata.merge.web.jboss.JBossServletMetaDataMerger;
+import org.jboss.metadata.sip.jboss.JBossSipServletsMetaData;
 import org.jboss.metadata.sip.spec.SipServletsMetaData;
+import org.jboss.metadata.web.jboss.JBossServletMetaData;
 import org.jboss.metadata.web.spec.ServletMetaData;
 
 /**
- * jboss-web/serlvet collection
+ * jboss-web/servlet collection
  *
  * @author Scott.Stark@jboss.org
  * @version $Revision: 66673 $
  */
-public class JBossServletsMetaData extends AbstractMappedMetaData<JBossServletMetaData> {
-    private static final long serialVersionUID = 1;
-
-    public static JBossServletsMetaData merge(JBossServletsMetaData override, SipServletsMetaData original) {
-        JBossServletsMetaData merged = new JBossServletsMetaData();
+public class JBossSipServletsMetaDataMerger {
+    public static JBossSipServletsMetaData merge(JBossSipServletsMetaData override, SipServletsMetaData original) {
+        JBossSipServletsMetaData merged = new JBossSipServletsMetaData();
         if (override == null && original == null)
             return merged;
 
         if (original != null) {
-            for (ServletMetaData smd : ((AbstractMappedMetaData<ServletMetaData>) original)) {
+            for (ServletMetaData smd : original) {
                 String key = smd.getKey();
                 if (override != null && override.containsKey(key)) {
                     JBossServletMetaData overrideSMD = override.get(key);
-                    JBossServletMetaData jbs = overrideSMD.merge(smd);
+                    JBossServletMetaData jbs = new JBossServletMetaData();
+                    JBossServletMetaDataMerger.merge(jbs, overrideSMD, smd);
                     merged.add(jbs);
                 } else {
                     JBossServletMetaData jbs = new JBossServletMetaData();
-                    jbs.merge(null, smd);
+                    JBossServletMetaDataMerger.merge(jbs, null, smd);
                     merged.add(jbs);
                 }
             }
@@ -66,9 +66,5 @@ public class JBossServletsMetaData extends AbstractMappedMetaData<JBossServletMe
         }
 
         return merged;
-    }
-
-    public JBossServletsMetaData() {
-        super("jboss-web app servlets");
     }
 }

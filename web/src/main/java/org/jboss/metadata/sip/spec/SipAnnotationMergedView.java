@@ -43,8 +43,8 @@ public class SipAnnotationMergedView {
     public static void merge(SipMetaData merged, SipMetaData xml, SipMetaData annotation) {
         // Merge the servlets meta data
         SipServletsMetaData servletsMetaData = new SipServletsMetaData();
-        merge(servletsMetaData, xml.getServlets(), annotation.getServlets());
-        merged.setServlets(servletsMetaData);
+        merge(servletsMetaData, xml.getSipServlets(), annotation.getSipServlets());
+        merged.setSipServlets(servletsMetaData);
 
         // Security Roles
         SecurityRolesMetaData securityRolesMetaData = new SecurityRolesMetaData();
@@ -185,8 +185,8 @@ public class SipAnnotationMergedView {
             merged.setDistributable(xml.getDistributable());
 
         // Session Config
-        if (xml.getSipSessionConfig() != null)
-            merged.setSipSessionConfig(xml.getSipSessionConfig());
+        if (xml.getSessionConfig() != null)
+            merged.setSessionConfig(xml.getSessionConfig());
 
         // Listener meta data
         if (xml.getListeners() != null)

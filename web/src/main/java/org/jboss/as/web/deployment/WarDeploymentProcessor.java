@@ -168,7 +168,7 @@ public class WarDeploymentProcessor extends AbstractDeploymentProcessor {
         webContext.setCrossContext(!metaData.isDisableCrossContext());
 
         final WebInjectionContainer injectionContainer = new WebInjectionContainer(module.getClassLoader());
-        // FIXME - josemrecio
+        // FIXME: josemrecio - do we need this?
         /*
         if (webContext instanceof SipStandardContext) {
             Context a = null;
