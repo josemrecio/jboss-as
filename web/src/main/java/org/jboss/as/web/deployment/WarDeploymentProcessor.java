@@ -63,6 +63,7 @@ import org.jboss.as.web.deployment.component.ComponentInstantiator;
 import org.jboss.as.web.security.JBossWebRealmService;
 import org.jboss.as.web.security.SecurityContextAssociationValve;
 import org.jboss.as.web.security.WarJaccService;
+import org.jboss.as.web.spi.WebContextFactory;
 import org.jboss.dmr.ModelNode;
 import org.jboss.metadata.javaee.spec.ParamValueMetaData;
 import org.jboss.metadata.web.jboss.ContainerListenerMetaData;
@@ -146,8 +147,13 @@ public class WarDeploymentProcessor implements DeploymentUnitProcessor {
         final List<SetupAction> setupActions = deploymentUnit
                 .getAttachmentList(org.jboss.as.ee.component.Attachments.WEB_SETUP_ACTIONS);
 
+        // Resolve the context factory
+        WebContextFactory contextFactory = deploymentUnit.getAttachment(WebContextFactory.ATTACHMENT);
+        if(contextFactory == null) {
+            contextFactory = WebContextFactory.DEFAULT;
+        }
         // Create the context
-        final StandardContext webContext = new StandardContext();
+        final StandardContext webContext = contextFactory.createContext(deploymentUnit);
         final JBossContextConfig config = new JBossContextConfig(deploymentUnit);
 
         // Add SecurityAssociationValve right at the beginning
