@@ -36,7 +36,7 @@
 
     <packaging>jar</packaging>
 
-    <name>JBoss Application Server: Web Subsystem</name>
+    <name>JBoss Application Server: Web Subsystem including Mobicents SipServlets awesomeness</name>
 
     <build>
         <plugins>
@@ -179,6 +179,111 @@
             <artifactId>jboss-as-subsystem-test</artifactId>
             <scope>test</scope>
          </dependency>
+
+        <dependency>
+            <groupId>javax.sip</groupId>
+            <artifactId>jain-sip-api</artifactId>
+            <version>${jain-sip-api.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.sip</groupId>
+            <artifactId>jain-sip-ri</artifactId>
+            <version>${jain-sip-ri.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mobicents.servlet.sip</groupId>
+            <artifactId>sip-servlets-impl</artifactId>
+            <version>${mobicents.sip-servlets.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mobicents.servlet.sip</groupId>
+            <artifactId>sip-servlets-spec</artifactId>
+            <version>${mobicents.sip-servlets.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mobicents.servlet.sip</groupId>
+            <artifactId>sip-servlets-annotations</artifactId>
+            <version>${mobicents.sip-servlets.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mobicents.servlet.sip</groupId>
+            <artifactId>sip-servlets-jruby</artifactId>
+            <version>${mobicents.sip-servlets.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mobicents.servlet.sip</groupId>
+            <artifactId>sip-servlets-client</artifactId>
+            <version>${mobicents.sip-servlets.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mobicents.servlet.sip</groupId>
+            <artifactId>sip-servlets-core-api</artifactId>
+            <version>${mobicents.sip-servlets.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mobicents.servlet.sip</groupId>
+            <artifactId>sip-servlets-as7</artifactId>
+            <version>${mobicents.sip-servlets.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>            
+            <groupId>org.mobicents.javax.sip</groupId>
+            <artifactId>mobicents-jain-sip-ext</artifactId>
+            <version>${mobicents.jain.sip.ext.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>dnsjava</groupId>
+            <artifactId>dnsjava</artifactId>
+            <version>${dnsjava.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mobicents.ha.javax.sip</groupId>
+            <artifactId>mobicents-jain-sip-ha-core</artifactId>
+            <version>${mobicents.jain.sip.ha.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mobicents.servlet.sip</groupId>
+            <artifactId>sip-servlets-application-router</artifactId>
+            <version>${mobicents.sip-servlets.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+        </dependency>
+
     </dependencies>
 
     <profiles>

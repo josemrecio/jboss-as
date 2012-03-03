@@ -21,3 +21,4 @@
 #
 
 org.jboss.as.web.WebExtension
+org.mobicents.as7.SipExtension

@@ -248,6 +248,17 @@
         <version.wsdl4j>1.6.2</version.wsdl4j>
         <version.xml.maven.plugin>1.0</version.xml.maven.plugin>        
         <version.xom>1.2.5</version.xom>
+        <!-- MSS -->
+        <mobicents.sip-servlets.version>1.7.0-SNAPSHOT</mobicents.sip-servlets.version>
+        <junit.version>4.1</junit.version>
+        <jain-sip-api.version>1.2</jain-sip-api.version>
+        <jain-sip-ri.version>1.2.X-SNAPSHOT</jain-sip-ri.version>
+        <mobicents.tools.mavenplugin.eclipse.version>1.0.0.FINAL</mobicents.tools.mavenplugin.eclipse.version>
+        <mobicents.cluster.version>1.12</mobicents.cluster.version>
+        <mobicents.balancer.version>1.5-SNAPSHOT</mobicents.balancer.version>
+        <mobicents.jain.sip.ha.version>1.4.0-SNAPSHOT</mobicents.jain.sip.ha.version>
+        <mobicents.jain.sip.ext.version>1.1-SNAPSHOT</mobicents.jain.sip.ext.version>
+        <dnsjava.version>2.1.0</dnsjava.version>
 
         <!-- Non-default plugin versions and configuration -->
         <version.javacc.plugin>2.5</version.javacc.plugin>
